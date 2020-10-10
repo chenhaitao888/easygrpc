@@ -1,6 +1,7 @@
 package com.cht.easygrpc.remoting;
 
 import com.cht.easygrpc.exception.RemotingException;
+import io.grpc.Server;
 
 /**
  * @author : chenhaitao934
@@ -9,5 +10,5 @@ import com.cht.easygrpc.exception.RemotingException;
 public interface EasyGrpcRemotingServer {
     void start() throws RemotingException;
 
-    void shutdown() throws RemotingException;
+    void shutdown(Server server) throws RemotingException;
 }

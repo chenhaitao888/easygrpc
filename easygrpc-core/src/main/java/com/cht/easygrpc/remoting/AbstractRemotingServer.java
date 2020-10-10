@@ -6,13 +6,9 @@ import com.cht.easygrpc.EasyGrpcResponse;
 import com.cht.easygrpc.EasyGrpcServiceGrpc;
 import com.cht.easygrpc.exception.NoAvailableWorkThreadException;
 import com.cht.easygrpc.exception.RemotingException;
-import com.cht.easygrpc.remoting.conf.EasyGrpcServerConfig;
-import com.cht.easygrpc.remoting.iface.IInvokeHandler;
 import com.cht.easygrpc.remoting.iface.IServiceInitializer;
 import io.grpc.Server;
 import io.grpc.stub.StreamObserver;
-
-import java.util.Map;
 
 /**
  * @author : chenhaitao934
@@ -32,12 +28,12 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
 
     @Override
     public void start() throws RemotingException {
-        serverStart(context, initializer);
+        serverStart();
     }
 
     @Override
-    public void shutdown() throws RemotingException {
-
+    public void shutdown(Server server) throws RemotingException {
+        serverShutdown(server);
     }
 
     protected void awaitTermination(Server server) throws InterruptedException {
@@ -46,8 +42,8 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
         }
     }
 
-    protected abstract void serverStart(EasyGrpcContext context, IServiceInitializer initializer) throws RemotingException;
-    protected abstract void serverShutdown() throws RemotingException;
+    protected abstract void serverStart() throws RemotingException;
+    protected abstract void serverShutdown(Server server) throws RemotingException;
 
     class EasyGrpcProcessor extends EasyGrpcServiceGrpc.EasyGrpcServiceImplBase {
 

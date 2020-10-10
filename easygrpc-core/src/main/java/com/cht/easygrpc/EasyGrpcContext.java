@@ -1,5 +1,6 @@
 package com.cht.easygrpc;
 
+import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
 import com.cht.easygrpc.remoting.conf.EasyGrpcServerConfig;
 import com.cht.easygrpc.runner.RpcRunnerPool;
 
@@ -12,6 +13,8 @@ import java.util.Map;
  */
 public class EasyGrpcContext {
     private EasyGrpcServerConfig serverConfig;
+
+    private EasyGrpcClientConfig clientConfig;
 
     private RpcRunnerPool rpcRunnerPool;
 
@@ -42,5 +45,13 @@ public class EasyGrpcContext {
 
     public void setRpcRunnerPool(RpcRunnerPool rpcRunnerPool) {
         this.rpcRunnerPool = rpcRunnerPool;
+    }
+
+    public EasyGrpcClientConfig getClientConfig() {
+        return clientConfig;
+    }
+
+    public void setClientConfig(EasyGrpcClientConfig clientConfig) {
+        this.clientConfig = clientConfig;
     }
 }

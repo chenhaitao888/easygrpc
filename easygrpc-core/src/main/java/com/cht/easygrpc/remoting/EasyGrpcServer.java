@@ -9,6 +9,7 @@ import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -26,7 +27,7 @@ public class EasyGrpcServer extends AbstractRemotingServer{
     }
 
     @Override
-    protected void serverStart(EasyGrpcContext context, IServiceInitializer initializer) throws RemotingException {
+    protected void serverStart() throws RemotingException {
         if(context == null || context.getServerConfig() == null){
             return;
         }
@@ -38,13 +39,13 @@ public class EasyGrpcServer extends AbstractRemotingServer{
         }
         context.getServerConfig().setInterfaces(context.getServerConfig().getInterfaces().stream().filter(Objects::nonNull).collect(Collectors.toList()));
         try {
-            nettyServerStart(context, initializer);
+            nettyServerStart(context);
         } catch (Exception e) {
             throw new RemotingException("start netty server failure", e);
         }
     }
 
-    private void nettyServerStart(EasyGrpcContext context, IServiceInitializer initializer) throws IOException, InterruptedException {
+    private void nettyServerStart(EasyGrpcContext context) throws IOException, InterruptedException {
 
         EasyGrpcProcessor easyGrpcProcessor = new EasyGrpcProcessor();
         Server server = NettyServerBuilder
@@ -59,7 +60,19 @@ public class EasyGrpcServer extends AbstractRemotingServer{
     }
 
     @Override
-    protected void serverShutdown() throws RemotingException {
+    protected void serverShutdown(Server server) throws RemotingException {
+        Runtime.getRuntime().addShutdownHook(new Thread(){
 
+            @Override
+            public void run() {
+                if (server != null) {
+                    try {
+                        server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        // 添加日志 todo
+                    }
+                }
+            }
+        });
     }
 }

@@ -4,10 +4,9 @@ import java.util.*;
 
 /**
  * @author : chenhaitao934
- * @date : 2:59 下午 2020/10/9
+ * @date : 8:55 下午 2020/6/20
  */
 public class CollectionHelper {
-
     private CollectionHelper() {
     }
 
@@ -120,5 +119,4 @@ public class CollectionHelper {
         Collections.addAll(list, t);
         return list;
     }
-
 }
