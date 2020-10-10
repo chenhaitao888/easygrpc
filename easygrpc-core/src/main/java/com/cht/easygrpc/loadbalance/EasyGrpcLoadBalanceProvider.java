@@ -15,22 +15,39 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static com.cht.easygrpc.loadbalance.SubchannelGroup.SUBCHANNEL_GROUP_SIZE;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static io.grpc.ConnectivityState.TRANSIENT_FAILURE;
 
 /**
  * @author : chenhaitao934
  * @date : 3:46 下午 2020/10/10
  */
-public class EasyGrpcLoadBalancerFactory extends LoadBalancer.Factory{
-    private final String serviceName;
-    public EasyGrpcLoadBalancerFactory(String serviceName) {
+public class EasyGrpcLoadBalanceProvider extends LoadBalancerProvider{
+
+    private String serviceName;
+
+    public EasyGrpcLoadBalanceProvider(String serviceName) {
         this.serviceName = serviceName;
     }
 
+    @Override
+    public boolean isAvailable() {
+        return true;
+    }
+
+    @Override
+    public int getPriority() {
+        return 5;
+    }
+
+    @Override
+    public String getPolicyName() {
+        return "customize";
+    }
 
     @Override
     public LoadBalancer newLoadBalancer(LoadBalancer.Helper helper) {
-        return null;
+        return new EasyGrpcLoadBanlancer(helper);
     }
 
     class EasyGrpcLoadBanlancer extends LoadBalancer{
