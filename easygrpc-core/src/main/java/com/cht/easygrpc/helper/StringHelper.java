@@ -2,6 +2,7 @@ package com.cht.easygrpc.helper;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.regex.Pattern;
 
 /**
@@ -9,6 +10,8 @@ import java.util.regex.Pattern;
  * @date : 1:59 下午 2020/10/9
  */
 public class StringHelper {
+
+    private static final String charset = "UTF-8";
 
     private StringHelper() {
     }
@@ -194,5 +197,17 @@ public class StringHelper {
         }
         sb.append(str.substring(1));
         return sb.toString();
+    }
+
+    public static String getString(byte[] bytes) {
+        if (bytes == null) {
+            return null;
+        }
+        try {
+            return new String(bytes, charset);
+        } catch (UnsupportedEncodingException e) {
+            //ignored
+            return "";
+        }
     }
 }

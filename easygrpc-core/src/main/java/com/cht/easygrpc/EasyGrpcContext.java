@@ -1,6 +1,7 @@
 package com.cht.easygrpc;
 
 import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
+import com.cht.easygrpc.remoting.conf.EasyGrpcCommonConfig;
 import com.cht.easygrpc.remoting.conf.EasyGrpcServerConfig;
 import com.cht.easygrpc.runner.RpcRunnerPool;
 
@@ -17,6 +18,10 @@ public class EasyGrpcContext {
     private EasyGrpcClientConfig clientConfig;
 
     private RpcRunnerPool rpcRunnerPool;
+
+    private EasyGrpcCommonConfig commonConfig;
+
+
 
     private final ThreadLocal<Map> TRACK = ThreadLocal.withInitial(HashMap<String, String>::new);
 
@@ -53,5 +58,13 @@ public class EasyGrpcContext {
 
     public void setClientConfig(EasyGrpcClientConfig clientConfig) {
         this.clientConfig = clientConfig;
+    }
+
+    public EasyGrpcCommonConfig getCommonConfig() {
+        return commonConfig;
+    }
+
+    public void setCommonConfig(EasyGrpcCommonConfig commonConfig) {
+        this.commonConfig = commonConfig;
     }
 }
