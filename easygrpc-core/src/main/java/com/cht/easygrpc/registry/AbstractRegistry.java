@@ -19,11 +19,11 @@ public abstract class AbstractRegistry implements Registry{
     }
 
     @Override
-    public void register(Node node) {
-        doRegister(node);
+    public void register() {
+        doRegister();
     }
 
-    protected abstract void doRegister(Node node);
+    protected abstract void doRegister();
 
     protected String basePath(){
         return ROOT_PATH + "/" + appId;
@@ -48,8 +48,6 @@ public abstract class AbstractRegistry implements Registry{
                 .append("/")
                 .append(node.getNodeType())
                 .append("/")
-                .append(node.getNodeType())
-                .append(":\\\\")
                 .append(node.getIp());
 
         if (node.getPort() != 0) {

@@ -37,6 +37,9 @@ public class EasyGrpcServiceNode extends AbstractGenericNode<EasyGrpcServiceNode
         private int queueCapacity;
         private String tag;
 
+        public Data() {
+        }
+
         public Data(String ip, int port, String nodeType) {
             super(ip, port, nodeType);
         }

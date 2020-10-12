@@ -5,5 +5,5 @@ package com.cht.easygrpc.registry;
  * @date : 2:06 下午 2020/10/10
  */
 public interface Registry {
-    void register(Node node);
+    void register();
 }

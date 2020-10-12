@@ -2,11 +2,11 @@ package com.cht.easygrpc.registry;
 
 import com.cht.easygrpc.EasyGrpcContext;
 import com.cht.easygrpc.helper.JsonHelper;
-import com.cht.easygrpc.helper.StringHelper;
-import org.apache.curator.framework.CuratorFramework;
+import com.cht.easygrpc.helper.PathHelper;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.leader.LeaderSelector;
-import org.apache.curator.framework.recipes.leader.LeaderSelectorListenerAdapter;
+
+import static org.apache.curator.framework.recipes.cache.PathChildrenCache.StartMode.POST_INITIALIZED_EVENT;
 
 /**
  * @author : chenhaitao934
@@ -26,15 +26,22 @@ public class EasyGrpcRegistry extends ZookeeperRegistry {
 
 
     @Override
-    protected void doRegister(Node node) {
-        this.serverNodePath = createNode(getServerPath(), false, true);
+    protected void doRegister() {
+        if(!checkExists(getServerPath())){
+            EasyGrpcServiceNode.Data data = new EasyGrpcServiceNode.Data();
+            this.serverNodePath = createNodeData(getServerPath(), false, false, JsonHelper.toBytes(data));
+        }else {
+            this.serverNodePath = getServerPath();
+        }
         EasyGrpcServiceNode.Data data = new EasyGrpcServiceNode.Data(context.getServerConfig().getIp(),
                 context.getServerConfig().getPort(), "service");
-        this.suriveNodePath = createNodeData(getFullPath(data), true, true, JsonHelper.toBytes(data));
-        this.serverCache = new PathChildrenCache(client, getFullPath(data), true);
+        this.suriveNodePath = createNodeData(getFullPath(data), true, false, JsonHelper.toBytes(data));
+        this.serverCache = new PathChildrenCache(client, PathHelper.getParentPath(getFullPath(data)), true);
         this.serverCache.getListenable().addListener(new ServerCacheListener());
         this.leaderSelector = new LeaderSelector(client, getSelectorPath(), new MasterSlaveLeadershipSelectorListener());
+        this.leaderSelector.autoRequeue();
         join();
     }
+
 
 }

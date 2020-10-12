@@ -10,6 +10,9 @@ public abstract class AbstractNode<T extends AbstractNode> {
     private String nodeType;
     private String nodeState;
 
+    public AbstractNode() {
+    }
+
     public AbstractNode(String ip, int port, String nodeType) {
         this.ip = ip;
         this.port = port;

@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.apache.curator.framework.recipes.cache.PathChildrenCache.StartMode.POST_INITIALIZED_EVENT;
+
 /**
  * @author : chenhaitao934
  * @date : 12:59 上午 2020/10/12
@@ -46,7 +48,7 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
 
     private static final Stat EMPTY_STAT = new Stat();
 
-    protected AtomicReference<State> state;
+    protected AtomicReference<State> state = new AtomicReference<>();
 
     private RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, Integer.MAX_VALUE);
 
@@ -70,6 +72,15 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
             }
         } catch (Exception e) {
             throw new RegistryException("create node failure", e);
+        }
+    }
+    
+    protected boolean checkExists(String path){
+        try {
+            Stat stat = getClient().checkExists().forPath(path);
+            return stat == null ? false : true;
+        } catch (Exception e) {
+            throw new RegistryException("check node exist failure", e);
         }
     }
 
@@ -144,9 +155,16 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
         try {
             return new ChildData(path, EMPTY_STAT, client.getData().forPath(path));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RegistryException("get data from failure", e);
         }
+    }
 
+    protected Stat setData(String path, byte[] data) {
+        try {
+            return getClient().setData().forPath(path, data);
+        } catch (Exception e) {
+            throw new RegistryException("set data to zk failure", e);
+        }
     }
 
 
@@ -190,7 +208,7 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
                     serverData.removeAdress(ip + ":" + port);
                     break;
             }
-
+            updateServerNode(serverNodePath, serverData);
             EasyGrpcChannelManager channelManager = context.getEasyGrpcChannelManager();
             EasyGrpcNameResolverProvider resolverProvider = channelManager.getResolverProvider(context.getServerConfig().getServiceName());
             int lbStrategy = context.getCommonConfig().getLbStrategy() == 0 ? EasyGrpcLS.RANDOM : context.getCommonConfig().getLbStrategy();
@@ -210,13 +228,19 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
         }
     }
 
+    private void updateServerNode(String serverNodePath, EasyGrpcServiceNode.Data serverData) {
+        EasyGrpcServiceNode node = new EasyGrpcServiceNode(serverNodePath, serverData);
+        setData(node.getPath(), node.getDataBytes());
+    }
+
     class MasterSlaveLeadershipSelectorListener extends AbstractLeadershipSelectorListener {
 
         @Override
         public void acquireLeadership() throws Exception {
             EasyGrpcServiceNode node = new EasyGrpcServiceNode(getData(suriveNodePath));
             node.getData().setNodeState("Master");
-            serverCache.start();
+            serverCache.start(POST_INITIALIZED_EVENT);
+            updateServerNode(suriveNodePath, node.getData());
         }
 
         @Override
@@ -251,6 +275,7 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
                     mutex.wait();
                 }
             } catch (InterruptedException e) {
+                e.printStackTrace();
                 // todo log
             }
         }
@@ -279,5 +304,6 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
         if(state.compareAndSet(State.LATENT, State.JOINED)){
             leaderSelector.start();
         }
+
     }
 }
