@@ -10,6 +10,8 @@ public class EasyGrpcServerConfig {
 
     private String serviceName;
 
+    private String ip;
+
     private int port;
 
     private int workThreads = 500;
@@ -68,5 +70,13 @@ public class EasyGrpcServerConfig {
 
     public void setQueueCapacity(int queueCapacity) {
         this.queueCapacity = queueCapacity;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 }

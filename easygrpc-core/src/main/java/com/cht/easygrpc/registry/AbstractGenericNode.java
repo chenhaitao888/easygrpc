@@ -11,7 +11,7 @@ import java.lang.reflect.Type;
  * @author : chenhaitao934
  * @date : 11:59 下午 2020/10/11
  */
-public abstract class AbstractGenericNode<T extends AbstractGenericNode, E extends AbstractNodeData<E>> extends Node{
+public abstract class AbstractGenericNode<T extends AbstractGenericNode, E extends AbstractNode<E>> extends Node{
     private E nodeData;
 
     public AbstractGenericNode(ChildData childData) {
@@ -35,6 +35,10 @@ public abstract class AbstractGenericNode<T extends AbstractGenericNode, E exten
             return (Class<E>) parameterizedType.getActualTypeArguments()[1];
         }
         throw new UnknownGenericTypeException();
+    }
+
+    public E getData() {
+        return nodeData;
     }
 
 

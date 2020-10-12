@@ -19,7 +19,7 @@ public class EasyGrpcConsumeNode extends AbstractGenericNode<EasyGrpcConsumeNode
         super(path, nodeData);
     }
 
-    public static class Data extends AbstractNodeData<EasyGrpcConsumeNode.Data>{
+    public static class Data extends AbstractNode<EasyGrpcConsumeNode.Data>{
 
         public Data(String ip, int port, String nodeType) {
             super(ip, port, nodeType);

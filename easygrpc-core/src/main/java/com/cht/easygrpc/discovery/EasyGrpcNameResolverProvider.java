@@ -14,6 +14,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author : chenhaitao934
@@ -42,7 +43,7 @@ public class EasyGrpcNameResolverProvider extends NameResolverProvider {
         if (CollectionHelper.isEmpty(initAddress)) {
             return Lists.newArrayList();
         }
-        List<EquivalentAddressGroup> servers = new ArrayList<>();
+        List<EquivalentAddressGroup> servers = new CopyOnWriteArrayList<>();
         for (Map<String, Object> address : initAddress) {
             SocketAddress socketAddress = new InetSocketAddress((String) address.get("host"), (int) address.get("port"));
 
@@ -54,6 +55,12 @@ public class EasyGrpcNameResolverProvider extends NameResolverProvider {
             servers.add(server);
         }
         return servers;
+    }
+
+    public void refreshServerList(int lbStrategy, List<Map<String, Object>> servers){
+        this.initAddress = servers;
+        equivalentAddressGroups = transInitAddresses();
+        nameResolver.refreshWithServers(lbStrategy, equivalentAddressGroups);
     }
 
 

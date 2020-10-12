@@ -10,6 +10,8 @@ public class EasyGrpcCommonConfig {
 
     private String appId;
 
+    private int lbStrategy;
+
     public String getRegistryAddress() {
         return registryAddress;
     }
@@ -24,5 +26,13 @@ public class EasyGrpcCommonConfig {
 
     public void setAppId(String appId) {
         this.appId = appId;
+    }
+
+    public int getLbStrategy() {
+        return lbStrategy;
+    }
+
+    public void setLbStrategy(int lbStrategy) {
+        this.lbStrategy = lbStrategy;
     }
 }

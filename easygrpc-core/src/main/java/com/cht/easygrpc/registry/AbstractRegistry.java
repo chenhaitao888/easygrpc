@@ -8,7 +8,7 @@ import com.cht.easygrpc.EasyGrpcContext;
  */
 public abstract class AbstractRegistry implements Registry{
 
-    private EasyGrpcContext context;
+    protected EasyGrpcContext context;
 
     protected String appId;
 
@@ -37,7 +37,11 @@ public abstract class AbstractRegistry implements Registry{
         return basePath() + "/consume";
     }
 
-    protected String getFullPath(AbstractNodeData node){
+    protected String getSelectorPath(){
+        return basePath() + "/selector";
+    }
+
+    protected String getFullPath(AbstractNode node){
         StringBuilder path = new StringBuilder();
 
         path.append(basePath())
@@ -54,4 +58,5 @@ public abstract class AbstractRegistry implements Registry{
 
         return path.toString();
     }
+
 }

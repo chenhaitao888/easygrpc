@@ -4,12 +4,13 @@ package com.cht.easygrpc.registry;
  * @author : chenhaitao934
  * @date : 11:26 下午 2020/10/11
  */
-public abstract class AbstractNodeData<T extends AbstractNodeData>{
+public abstract class AbstractNode<T extends AbstractNode> {
     private String ip;
     private int port;
     private String nodeType;
+    private String nodeState;
 
-    public AbstractNodeData(String ip, int port, String nodeType) {
+    public AbstractNode(String ip, int port, String nodeType) {
         this.ip = ip;
         this.port = port;
         this.nodeType = nodeType;
@@ -37,5 +38,13 @@ public abstract class AbstractNodeData<T extends AbstractNodeData>{
 
     public void setNodeType(String nodeType) {
         this.nodeType = nodeType;
+    }
+
+    public String getNodeState() {
+        return nodeState;
+    }
+
+    public void setNodeState(String nodeState) {
+        this.nodeState = nodeState;
     }
 }

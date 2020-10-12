@@ -70,4 +70,8 @@ public class EasyGrpcChannelManager {
         return channel;
     }
 
+    public EasyGrpcNameResolverProvider getResolverProvider(String serviceName){
+        return providerConcurrentHashMap.get(serviceName);
+    }
+
 }

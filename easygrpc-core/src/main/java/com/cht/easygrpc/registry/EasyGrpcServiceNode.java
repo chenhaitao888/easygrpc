@@ -3,7 +3,9 @@ package com.cht.easygrpc.registry;
 import org.apache.curator.framework.recipes.cache.ChildData;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -24,7 +26,7 @@ public class EasyGrpcServiceNode extends AbstractGenericNode<EasyGrpcServiceNode
         super(path, data);
     }
 
-    public static class Data extends AbstractNodeData<Data>{
+    public static class Data extends AbstractNode<Data>{
 
         private List<String> address;
 
@@ -33,6 +35,7 @@ public class EasyGrpcServiceNode extends AbstractGenericNode<EasyGrpcServiceNode
         private int workThreads;
         private int weight;
         private int queueCapacity;
+        private String tag;
 
         public Data(String ip, int port, String nodeType) {
             super(ip, port, nodeType);
@@ -66,6 +69,15 @@ public class EasyGrpcServiceNode extends AbstractGenericNode<EasyGrpcServiceNode
                 return;
             }
             ifaces.remove(iface);
+        }
+
+        public Map<String, Object> buildMap(String ip, int port) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("host", ip);
+            result.put("port", port);
+            result.put("weight", this.getWeight());
+            result.put("tag", this.getTag());
+            return result;
         }
 
 
@@ -107,6 +119,14 @@ public class EasyGrpcServiceNode extends AbstractGenericNode<EasyGrpcServiceNode
 
         public void setIfaces(List<String> ifaces) {
             this.ifaces = ifaces;
+        }
+
+        public String getTag() {
+            return tag;
+        }
+
+        public void setTag(String tag) {
+            this.tag = tag;
         }
     }
 }

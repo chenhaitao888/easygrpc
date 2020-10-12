@@ -1,12 +1,27 @@
 package com.cht.easygrpc.registry;
 
 import com.cht.easygrpc.EasyGrpcContext;
+import com.cht.easygrpc.constant.EasyGrpcLS;
+import com.cht.easygrpc.discovery.EasyGrpcNameResolverProvider;
+import com.cht.easygrpc.enums.EventStatus;
 import com.cht.easygrpc.exception.RegistryException;
+import com.cht.easygrpc.helper.EventHelper;
+import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.cache.ChildData;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
+import org.apache.curator.framework.recipes.leader.LeaderSelector;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.data.Stat;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author : chenhaitao934
@@ -14,9 +29,15 @@ import org.apache.zookeeper.CreateMode;
  */
 public abstract class ZookeeperRegistry extends AbstractRegistry{
 
-    private CuratorFramework client;
+    protected CuratorFramework client;
 
+    protected PathChildrenCache serverCache;
 
+    protected LeaderSelector leaderSelector;
+
+    protected String serverNodePath;
+
+    private static final Stat EMPTY_STAT = new Stat();
 
     private RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, Integer.MAX_VALUE);
 
@@ -109,13 +130,74 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
         }
     }
 
+    protected ChildData getData(String path) {
+        try {
+            return new ChildData(path, EMPTY_STAT, client.getData().forPath(path));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 
     protected CuratorFramework getClient() {
         return client;
     }
 
+    class ServerCacheListener implements PathChildrenCacheListener {
 
+        @Override
+        public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent event) throws Exception {
+            if(!leaderSelector.hasLeadership()){
+                return;
+            }
+            EasyGrpcServiceNode serviceNode = new EasyGrpcServiceNode(event.getData());
+            EasyGrpcServiceNode.Data data = serviceNode.getData();
+            EasyGrpcServiceNode node = new EasyGrpcServiceNode(getData(serverNodePath));
+            EasyGrpcServiceNode.Data serverData = node.getData();
+            if(data == null){
+                return;
+            }
+            if(EventHelper.addEvent(event)){
+                handleServerNode(serverData, data, EventStatus.ADD);
+            }
+            if(EventHelper.removeEvent(event)){
+                handleServerNode(serverData, data, EventStatus.REMOVE);
+            }
 
+        }
 
+        private void handleServerNode(EasyGrpcServiceNode.Data serverData, EasyGrpcServiceNode.Data data,
+                                      EventStatus status) {
+            String ip = data.getIp();
+            int port = data.getPort();
+
+            switch (status) {
+                case ADD:
+                    serverData.addAdress(ip + ":" + port);
+                    break;
+                case REMOVE:
+                    serverData.removeAdress(ip + ":" + port);
+                    break;
+            }
+
+            EasyGrpcChannelManager channelManager = context.getEasyGrpcChannelManager();
+            EasyGrpcNameResolverProvider resolverProvider = channelManager.getResolverProvider(context.getServerConfig().getServiceName());
+            int lbStrategy = context.getCommonConfig().getLbStrategy() == 0 ? EasyGrpcLS.RANDOM : context.getCommonConfig().getLbStrategy();
+            List<Map<String, Object>> servers = assembleServers(serverData);
+            resolverProvider.refreshServerList(lbStrategy, servers);
+        }
+
+        private List<Map<String, Object>> assembleServers(EasyGrpcServiceNode.Data serverData) {
+            List<Map<String, Object>> servers = new ArrayList<>();
+            List<String> address = serverData.getAddress();
+            address.forEach(e -> {
+                String[] split = e.split(":");
+                Map<String, Object> stringObjectMap = serverData.buildMap(split[0], Integer.parseInt(split[1]));
+                servers.add(stringObjectMap);
+            });
+            return servers;
+        }
+    }
 
 }
