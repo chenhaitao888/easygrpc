@@ -7,10 +7,12 @@ package com.cht.easygrpc.registry;
 public abstract class AbstractNodeData<T extends AbstractNodeData>{
     private String ip;
     private int port;
+    private String nodeType;
 
-    public AbstractNodeData(String ip, int port) {
+    public AbstractNodeData(String ip, int port, String nodeType) {
         this.ip = ip;
         this.port = port;
+        this.nodeType = nodeType;
     }
 
     public String getIp() {
@@ -27,5 +29,13 @@ public abstract class AbstractNodeData<T extends AbstractNodeData>{
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public String getNodeType() {
+        return nodeType;
+    }
+
+    public void setNodeType(String nodeType) {
+        this.nodeType = nodeType;
     }
 }
