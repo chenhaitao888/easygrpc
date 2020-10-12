@@ -15,13 +15,18 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.leader.LeaderSelector;
+import org.apache.curator.framework.recipes.leader.LeaderSelectorListener;
+import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author : chenhaitao934
@@ -37,7 +42,11 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
 
     protected String serverNodePath;
 
+    protected String suriveNodePath;
+
     private static final Stat EMPTY_STAT = new Stat();
+
+    protected AtomicReference<State> state;
 
     private RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, Integer.MAX_VALUE);
 
@@ -45,6 +54,7 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
     public ZookeeperRegistry(EasyGrpcContext context) {
         super(context);
         this.appId = context.getCommonConfig().getAppId();
+        this.state.set(State.LATENT);
         String registryAddress = context.getCommonConfig().getRegistryAddress();
         this.client = CuratorFrameworkFactory.newClient(registryAddress, retryPolicy);
         this.client.start();
@@ -63,7 +73,7 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
         }
     }
 
-    private String createNodeData(String path, boolean ephemeral, boolean sequential, byte[] data) {
+    protected String createNodeData(String path, boolean ephemeral, boolean sequential, byte[] data) {
         try {
             if(ephemeral){
                 return creatEphemeralNode(path, data, sequential);
@@ -200,4 +210,74 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
         }
     }
 
+    class MasterSlaveLeadershipSelectorListener extends AbstractLeadershipSelectorListener {
+
+        @Override
+        public void acquireLeadership() throws Exception {
+            EasyGrpcServiceNode node = new EasyGrpcServiceNode(getData(suriveNodePath));
+            node.getData().setNodeState("Master");
+            serverCache.start();
+        }
+
+        @Override
+        public void relinquishLeadership() {
+            try {
+                if (serverCache != null) {
+                    serverCache.close();
+                }
+            } catch (Exception e) {
+                // todo log
+            }
+        }
+    }
+
+    protected abstract class AbstractLeadershipSelectorListener implements LeaderSelectorListener {
+        private final AtomicInteger leaderCount = new AtomicInteger();
+
+        private Object mutex = new Object();
+
+        public void takeLeadership(CuratorFramework curatorFramework) throws Exception {
+            boolean isJoined = isJoined();
+            try {
+                if (isJoined) {
+                    acquireLeadership();
+                }
+            } catch (Throwable e) {
+                relinquishLeadership();
+                return;
+            }
+            try {
+                synchronized (mutex) {
+                    mutex.wait();
+                }
+            } catch (InterruptedException e) {
+                // todo log
+            }
+        }
+
+        public void stateChanged(CuratorFramework client, ConnectionState newState) {
+            if (!newState.isConnected()) {
+                relinquishLeadership();
+                synchronized (mutex) {
+                    mutex.notify();
+                }
+            }
+        }
+
+        public abstract void acquireLeadership() throws Exception;
+
+        public abstract void relinquishLeadership();
+    }
+
+    protected enum State { LATENT, JOINED, EXITED}
+
+    protected boolean isJoined() {
+        return this.state.get() == State.JOINED;
+    }
+
+    public void join() {
+        if(state.compareAndSet(State.LATENT, State.JOINED)){
+            leaderSelector.start();
+        }
+    }
 }

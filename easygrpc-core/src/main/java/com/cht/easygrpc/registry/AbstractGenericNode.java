@@ -41,6 +41,10 @@ public abstract class AbstractGenericNode<T extends AbstractGenericNode, E exten
         return nodeData;
     }
 
+    public byte[] getDataBytes() {
+        return JsonHelper.toBytes(nodeData);
+    }
+
 
     @Override
     public String toString() {

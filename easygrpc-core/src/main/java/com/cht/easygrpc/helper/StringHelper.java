@@ -210,4 +210,16 @@ public class StringHelper {
             return "";
         }
     }
+
+    public static byte[] getBytes(String s) {
+        if (s == null) {
+            return new byte[0];
+        }
+        try {
+            return s.getBytes(charset);
+        } catch (UnsupportedEncodingException e) {
+            //ignored
+            return new byte[0];
+        }
+    }
 }

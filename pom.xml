@@ -11,6 +11,7 @@
     <modules>
         <module>easygrpc-core</module>
         <module>easygrpc-protobuf</module>
+        <module>easygrpc-startup</module>
     </modules>
     <properties>
         <jackson.version>2.9.8</jackson.version>

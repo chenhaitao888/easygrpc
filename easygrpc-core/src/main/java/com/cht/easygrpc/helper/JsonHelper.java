@@ -38,5 +38,9 @@ public class JsonHelper {
         }
     }
 
+    public static byte[] toBytes(Object object) {
+        return StringHelper.getBytes(toJson(object));
+    }
+
 
 }
