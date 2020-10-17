@@ -28,7 +28,7 @@ public class EasyGrpcChannelManager {
 
     private static final int MAX_INBOUND_SIZE = 100 * 1024 * 1024;
 
-    public EasyGrpcChannelManager(ThreadPoolExecutor threadPoolExecutor, EasyGrpcContext context) {
+    public EasyGrpcChannelManager(EasyGrpcContext context) {
         CustomizeThreadPollExecutor executor = new CustomizeThreadPollExecutor(context.getServerConfig().getServiceName(),
                 context.getServerConfig().getWorkThreads(),
                 context.getServerConfig().getWorkThreads(), 30, context.getServerConfig().getQueueCapacity(),

@@ -23,6 +23,10 @@ public class ConfigContext {
         return clientConfig;
     }
 
+    public void putClientConfig(EasyGrpcClientConfig clientConfig){
+        clientConfs.put(clientConfig.getClientName(), clientConfig);
+    }
+
     private String getMethodKey(String serviceName, String ifaceName, String methodName) {
         return serviceName + "_" + ifaceName + "_" + methodName;
     }

@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 public class EasyGrpcInvocation implements Invocation{
 
     private String methodName;
-    private String serviceName;
+    private String ifaceName;
     private transient Class<?>[] parameterTypes;
 
     private transient Class<?> returnType;
@@ -23,9 +23,9 @@ public class EasyGrpcInvocation implements Invocation{
         this.method = method;
     }
 
-    public EasyGrpcInvocation(String methodName, String serviceName, Object[] arguments) {
+    public EasyGrpcInvocation(String methodName, String ifaceName, Object[] arguments) {
         this.methodName = methodName;
-        this.serviceName = serviceName;
+        this.ifaceName = ifaceName;
         this.arguments = arguments;
     }
 
@@ -35,8 +35,8 @@ public class EasyGrpcInvocation implements Invocation{
     }
 
     @Override
-    public String getServiceName() {
-        return serviceName;
+    public String getIfaceName() {
+        return ifaceName;
     }
 
     @Override
@@ -74,9 +74,7 @@ public class EasyGrpcInvocation implements Invocation{
         this.methodName = methodName;
     }
 
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
+    public void setIfaceName(String ifaceName) {
+        this.ifaceName = ifaceName;
     }
-
-
 }

@@ -8,6 +8,7 @@ import com.cht.easygrpc.enums.EasyGrpcResultStatus;
 import com.cht.easygrpc.exception.EasyGrpcException;
 import com.cht.easygrpc.exception.ServiceException;
 import com.cht.easygrpc.helper.GrpcParseHelper;
+import com.cht.easygrpc.helper.StringHelper;
 import com.cht.easygrpc.remoting.AbstractRemoting;
 import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
 import com.cht.easygrpc.remoting.conf.EasyGrpcMethodConfig;
@@ -66,7 +67,7 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
             return doCall(invocation);
         } catch (ServiceException e) {
             resultCode = e.getCode();
-            logForError(invocation.getServiceName(), invocation.getMethodName(), e);
+            logForError(invocation.getIfaceName(), invocation.getMethodName(), e);
             throw new EasyGrpcException(e);
         } catch (Throwable e) {
             if (isTimeoutException(e)) {
@@ -74,10 +75,10 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
             } else if (isNoServerNodesException(e)) {
                 resultCode = NO_SERVER_NODES.getCode();
             }
-            logForError(invocation.getServiceName(), invocation.getMethodName(), e);
+            logForError(invocation.getIfaceName(), invocation.getMethodName(), e);
             throw new EasyGrpcException(e);
         }finally {
-            logRpc(invocation.getServiceName(), invocation.getMethodName(), resultCode);
+            logRpc(invocation.getIfaceName(), invocation.getMethodName(), resultCode);
             if (atomicBoolean.get()) {
                 baseParameter.clear();
             }
@@ -121,11 +122,19 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
 
     protected AbstractStub createEasyGrpcServiceStub(Invocation invocation){
         EasyGrpcChannelManager channelManager = context.getEasyGrpcChannelManager();
-        ManagedChannel manageChannel = channelManager.getManageChannel(invocation.getServiceName());
+        ManagedChannel manageChannel = channelManager.getManageChannel(getServiceName(invocation.getIfaceName()));
         if(manageChannel == null){
             throw new EasyGrpcException("manageChannel is null");
         }
         return createEasyGrpcServiceStub(manageChannel, invocation);
+    }
+
+    protected String getServiceName(String ifaceName) {
+        String serviceName = serviceIface.get(ifaceName);
+        if(StringHelper.isEmpty(serviceName)){
+            throw new EasyGrpcException("undeclared inteface (" + ifaceName + ")");
+        }
+        return serviceName;
     }
 
     protected String getIfaceMethodKey(String iface, String method) {
@@ -136,7 +145,7 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
         String requestJson = GrpcParseHelper.genArgJsons(invocation.getArguments());
         EasyGrpcRequest request = EasyGrpcRequest.newBuilder().setReqId(baseParameter.get("reqId"))
                 .setRpcId(baseParameter.get("rpcId"))
-                .setIface(invocation.getServiceName())
+                .setIface(invocation.getIfaceName())
                 .setMethod(invocation.getMethodName())
                 .setRequestJson(requestJson)
                 .build();
@@ -162,5 +171,7 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
                     , easyGrpcResponse == null ? "" : easyGrpcResponse.getMsg());
         }
     }
+
+
 
 }

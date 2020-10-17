@@ -23,9 +23,13 @@ public class EasyGrpcBlockStub<T> extends AbstractGrpcStub<T>{
         super(type, context);
     }
 
+    public static <T> EasyGrpcBlockStub<T> buid(Class<T> type, EasyGrpcContext context){
+        return new EasyGrpcBlockStub<>(type, context);
+    }
+
     @Override
     protected T doCall(Invocation invocation) throws Exception {
-        long timeout = getTimeout(invocation.getServiceName(), invocation.getMethodName());
+        long timeout = getTimeout(getServiceName(invocation.getIfaceName()), invocation.getMethodName());
         EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub blockingStub =
                 (EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub) createEasyGrpcServiceStub(invocation);
         EasyGrpcRequest request = buildRequest(invocation);
@@ -34,7 +38,7 @@ public class EasyGrpcBlockStub<T> extends AbstractGrpcStub<T>{
         EasyGrpcResponse soaInvokerResponse = responseFuture.get(timeout, TimeUnit.MILLISECONDS);
         checkResponseCode(soaInvokerResponse);
 
-        T result = GrpcParseHelper.parseResult(soaInvokerResponse.getResultJson(), invocation.getServiceName(),
+        T result = GrpcParseHelper.parseResult(soaInvokerResponse.getResultJson(), getServiceName(invocation.getIfaceName()),
                 invocation.getMethod());
         logForResponse(invocation.getMethod(), result);
         return result;
@@ -44,7 +48,7 @@ public class EasyGrpcBlockStub<T> extends AbstractGrpcStub<T>{
     protected AbstractStub createEasyGrpcServiceStub(ManagedChannel manageChannel, Invocation invocation) {
         EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub blockingStub = EasyGrpcServiceGrpc.newBlockingStub(manageChannel)
                 .withDeadlineAfter(timeout, TimeUnit.MILLISECONDS)
-                .withOption(IFACE_METHOD_KEY, getIfaceMethodKey(invocation.getServiceName(), invocation.getMethodName()))
+                .withOption(IFACE_METHOD_KEY, getIfaceMethodKey(invocation.getIfaceName(), invocation.getMethodName()))
                 .withOption(CALL_PARAMS_KEY, invocation.getArguments() == null ? new Object[]{} :
                         invocation.getArguments());
         return blockingStub;
