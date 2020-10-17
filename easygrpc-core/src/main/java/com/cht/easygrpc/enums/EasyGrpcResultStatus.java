@@ -47,4 +47,6 @@ public enum EasyGrpcResultStatus {
     public static boolean isNoServerNodesException(Throwable e) {
         return e.getCause() != null && e.getCause() instanceof NoSuchElementException;
     }
+
+
 }

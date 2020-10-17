@@ -1,6 +1,7 @@
 package com.cht.easygrpc;
 
 import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
+import com.cht.easygrpc.remoting.conf.ConfigContext;
 import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
 import com.cht.easygrpc.remoting.conf.EasyGrpcCommonConfig;
 import com.cht.easygrpc.remoting.conf.EasyGrpcServerConfig;
@@ -23,6 +24,8 @@ public class EasyGrpcContext {
     private EasyGrpcCommonConfig commonConfig;
 
     private EasyGrpcChannelManager easyGrpcChannelManager;
+
+    private ConfigContext configContext;
 
     private final ThreadLocal<Map> TRACK = ThreadLocal.withInitial(HashMap<String, String>::new);
 
@@ -75,5 +78,13 @@ public class EasyGrpcContext {
 
     public void setEasyGrpcChannelManager(EasyGrpcChannelManager easyGrpcChannelManager) {
         this.easyGrpcChannelManager = easyGrpcChannelManager;
+    }
+
+    public ConfigContext getConfigContext() {
+        return configContext;
+    }
+
+    public void setConfigContext(ConfigContext configContext) {
+        this.configContext = configContext;
     }
 }

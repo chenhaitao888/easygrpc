@@ -6,4 +6,6 @@ package com.cht.easygrpc.constant;
  */
 public interface ExtRpcConfig {
     String RPC_LOGGER = "rpc.logger";
+
+    String RPC_PROXY = "rpc.proxy";
 }

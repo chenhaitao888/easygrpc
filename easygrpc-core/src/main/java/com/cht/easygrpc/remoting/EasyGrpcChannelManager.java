@@ -74,4 +74,8 @@ public class EasyGrpcChannelManager {
         return providerConcurrentHashMap.get(serviceName);
     }
 
+    public ManagedChannel getManageChannel(String serviceName){
+        return serviceChannelMap.get(serviceName);
+    }
+
 }

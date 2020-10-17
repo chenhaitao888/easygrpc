@@ -22,4 +22,5 @@ public class JsonClientHelper {
     public static JavaType getReturnJavaType(String serviceName, Method method) {
         return serviceInfos.get(serviceName).getInterfaceInfo(method.getDeclaringClass().getName()).getMethodInfo(method.getName()).getReturnJavaType();
     }
+
 }
