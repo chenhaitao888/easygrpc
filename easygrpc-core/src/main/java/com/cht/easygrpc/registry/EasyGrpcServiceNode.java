@@ -36,6 +36,7 @@ public class EasyGrpcServiceNode extends AbstractGenericNode<EasyGrpcServiceNode
         private int weight;
         private int queueCapacity;
         private String tag;
+        private String serviceName;
 
         public Data() {
         }
@@ -130,6 +131,14 @@ public class EasyGrpcServiceNode extends AbstractGenericNode<EasyGrpcServiceNode
 
         public void setTag(String tag) {
             this.tag = tag;
+        }
+
+        public String getServiceName() {
+            return serviceName;
+        }
+
+        public void setServiceName(String serviceName) {
+            this.serviceName = serviceName;
         }
     }
 }

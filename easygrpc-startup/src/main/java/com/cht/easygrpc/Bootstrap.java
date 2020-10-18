@@ -14,13 +14,13 @@ public class Bootstrap {
     public static void main(String[] args) {
         EasyGrpcContext context = new EasyGrpcContext();
         EasyGrpcCommonConfig commonConfig = new EasyGrpcCommonConfig();
-        commonConfig.setAppId("test");
-        commonConfig.setRegistryAddress("172.17.210.89:2181");
+        commonConfig.setAppId("EasyGrpcTest");
+        commonConfig.setRegistryAddress("192.168.1.6:2181");
         context.setCommonConfig(commonConfig);
         EasyGrpcServerConfig serverConfig = new EasyGrpcServerConfig();
-        serverConfig.setIp("172.17.210.89");
+        serverConfig.setIp("192.168.1.6");
         serverConfig.setPort(8888);
-        serverConfig.setServiceName("testService");
+        serverConfig.setServiceName("EasyGrpcTest");
         context.setServerConfig(serverConfig);
         EasyGrpcRegistry registry = new EasyGrpcRegistry(context);
         registry.register();

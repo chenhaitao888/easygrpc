@@ -107,7 +107,7 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
 
     protected abstract T doCall(Invocation invocation) throws Exception;
 
-    protected abstract AbstractStub createEasyGrpcServiceStub(ManagedChannel manageChannel, Invocation invocation);
+    protected abstract AbstractStub createEasyGrpcServiceStub(ManagedChannel manageChannel, Invocation invocation, long timeout);
 
     protected long getTimeout(String serviceName, String method) {
         if (timeout > 0) {
@@ -120,13 +120,13 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
         return context.getClientConfig().getTimeoutInMillis();
     }
 
-    protected AbstractStub createEasyGrpcServiceStub(Invocation invocation){
+    protected AbstractStub createEasyGrpcServiceStub(Invocation invocation, long timeout){
         EasyGrpcChannelManager channelManager = context.getEasyGrpcChannelManager();
         ManagedChannel manageChannel = channelManager.getManageChannel(getServiceName(invocation.getIfaceName()));
         if(manageChannel == null){
             throw new EasyGrpcException("manageChannel is null");
         }
-        return createEasyGrpcServiceStub(manageChannel, invocation);
+        return createEasyGrpcServiceStub(manageChannel, invocation, timeout);
     }
 
     protected String getServiceName(String ifaceName) {

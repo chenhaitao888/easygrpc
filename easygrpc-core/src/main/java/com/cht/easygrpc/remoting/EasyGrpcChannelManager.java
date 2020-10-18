@@ -34,8 +34,8 @@ public class EasyGrpcChannelManager {
                 context.getServerConfig().getWorkThreads(), 30, context.getServerConfig().getQueueCapacity(),
                 false, null);
         this.threadPoolExecutor = (ThreadPoolExecutor) executor.initializeExecutor(executor, new ThreadPoolExecutor.AbortPolicy());
-        initProvider(context.getClientConfig().getClientName());
-        initChannel(context.getClientConfig().getClientName());
+        //initProvider(context.getClientConfig().getClientName());
+        //initChannel(context.getClientConfig().getClientName());
     }
 
     private void initProvider(String serviceName) {
@@ -47,7 +47,7 @@ public class EasyGrpcChannelManager {
         }
     }
 
-    private void initChannel(String serviceName) {
+    public void initChannel(String serviceName) {
         checkArgument(serviceName != null, "serviceName is null");
         ManagedChannel managedChannel = serviceChannelMap.get(serviceName);
         if(managedChannel == null){
@@ -72,6 +72,10 @@ public class EasyGrpcChannelManager {
 
     public EasyGrpcNameResolverProvider getResolverProvider(String serviceName){
         return providerConcurrentHashMap.get(serviceName);
+    }
+
+    public void putResolverProvider(String serviceName, EasyGrpcNameResolverProvider resolverProvider){
+        providerConcurrentHashMap.put(serviceName, resolverProvider);
     }
 
     public ManagedChannel getManageChannel(String serviceName){

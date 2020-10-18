@@ -1,9 +1,14 @@
 package com.cht.easygrpc.helper;
 
+import com.cht.easygrpc.exception.ResourceProcessException;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.UUID;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * @author : chenhaitao934
@@ -21,6 +26,14 @@ public class StringHelper {
     public static boolean isEmpty(String s) {
         return s == null || s.trim().equals("");
     }
+
+    public static final String NEW_LINE_STRING = System.getProperty("line.separator");
+
+    private static final int PAD_LIMIT = 8192;
+
+    public static final String EMPTY = "";
+
+    public static final String SPACE = " ";
 
     public static boolean isNotEmpty(String... strs) {
         if (strs != null) {
@@ -221,5 +234,83 @@ public class StringHelper {
             //ignored
             return new byte[0];
         }
+    }
+
+    public static boolean isMatch(String src, String regex) {
+        return getMatcher(src, regex).find();
+    }
+
+    private static Matcher getMatcher(String src, String regex) {
+        Pattern pattern = null;
+
+        try {
+            pattern = Pattern.compile(regex);
+        } catch (PatternSyntaxException var4) {
+            throw new ResourceProcessException(var4);
+        }
+
+        Matcher matcher = pattern.matcher(src);
+        return matcher;
+    }
+
+    public static String getUUIDNoLine() {
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString().replaceAll("-", "");
+    }
+
+    public static String leftPad(final String str, final int size, final char padChar) {
+        if (str == null) {
+            return null;
+        }
+        final int pads = size - str.length();
+        if (pads <= 0) {
+            return str; // returns original String when possible
+        }
+        if (pads > PAD_LIMIT) {
+            return leftPad(str, size, String.valueOf(padChar));
+        }
+        return repeat(padChar, pads).concat(str);
+    }
+
+    public static String leftPad(final String str, final int size, String padStr) {
+        if (str == null) {
+            return null;
+        }
+        if (isEmpty(padStr)) {
+            padStr = SPACE;
+        }
+        final int padLen = padStr.length();
+        final int strLen = str.length();
+        final int pads = size - strLen;
+        if (pads <= 0) {
+            return str; // returns original String when possible
+        }
+        if (padLen == 1 && pads <= PAD_LIMIT) {
+            return leftPad(str, size, padStr.charAt(0));
+        }
+
+        if (pads == padLen) {
+            return padStr.concat(str);
+        } else if (pads < padLen) {
+            return padStr.substring(0, pads).concat(str);
+        } else {
+            final char[] padding = new char[pads];
+            final char[] padChars = padStr.toCharArray();
+            for (int i = 0; i < pads; i++) {
+                padding[i] = padChars[i % padLen];
+            }
+            return new String(padding).concat(str);
+        }
+    }
+
+    public static String repeat(final char ch, final int repeat) {
+        if (repeat <= 0) {
+            return EMPTY;
+        }
+        final char[] buf = new char[repeat];
+        for (int i = repeat - 1; i >= 0; i--) {
+            buf[i] = ch;
+        }
+        return new String(buf);
     }
 }

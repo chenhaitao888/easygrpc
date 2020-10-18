@@ -35,6 +35,7 @@ public class EasyGrpcRegistry extends ZookeeperRegistry {
         }
         EasyGrpcServiceNode.Data data = new EasyGrpcServiceNode.Data(context.getServerConfig().getIp(),
                 context.getServerConfig().getPort(), "service");
+        data.setServiceName(context.getServerConfig().getServiceName());
         this.suriveNodePath = createNodeData(getFullPath(data), true, false, JsonHelper.toBytes(data));
         this.serverCache = new PathChildrenCache(client, PathHelper.getParentPath(getFullPath(data)), true);
         this.serverCache.getListenable().addListener(new ServerCacheListener());

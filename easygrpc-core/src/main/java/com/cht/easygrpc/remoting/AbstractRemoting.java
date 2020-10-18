@@ -3,6 +3,7 @@ package com.cht.easygrpc.remoting;
 import com.cht.easygrpc.EasyGrpcContext;
 import com.cht.easygrpc.concurrent.CustomizeThreadPollExecutor;
 import com.cht.easygrpc.helper.CollectionHelper;
+import com.cht.easygrpc.remoting.conf.ConfigContext;
 import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
 import com.cht.easygrpc.support.EasyGrpcBlockStub;
 import com.cht.easygrpc.support.EasyGrpcStub;
@@ -36,6 +37,9 @@ public abstract class AbstractRemoting {
 
     private void initServiceIface(EasyGrpcContext context) {
         EasyGrpcClientConfig clientConfig = context.getClientConfig();
+        if(clientConfig == null){
+            return;
+        }
         List<String> ifaceNames = clientConfig.getIfaceNames();
         if(CollectionHelper.isNotEmpty(ifaceNames)){
             ifaceNames.forEach(e -> serviceIface.put(e, clientConfig.getClientName()));

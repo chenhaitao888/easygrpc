@@ -199,6 +199,7 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
                                       EventStatus status) {
             String ip = data.getIp();
             int port = data.getPort();
+            String serviceName = serverData.getServiceName();
 
             switch (status) {
                 case ADD:
@@ -210,9 +211,13 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
             }
             updateServerNode(serverNodePath, serverData);
             EasyGrpcChannelManager channelManager = context.getEasyGrpcChannelManager();
-            EasyGrpcNameResolverProvider resolverProvider = channelManager.getResolverProvider(context.getServerConfig().getServiceName());
             int lbStrategy = context.getCommonConfig().getLbStrategy() == 0 ? EasyGrpcLS.RANDOM : context.getCommonConfig().getLbStrategy();
             List<Map<String, Object>> servers = assembleServers(serverData);
+            EasyGrpcNameResolverProvider resolverProvider = channelManager.getResolverProvider(serviceName);
+            if(resolverProvider == null){
+                resolverProvider = new EasyGrpcNameResolverProvider(servers, lbStrategy);
+                channelManager.putResolverProvider(serviceName, resolverProvider);
+            }
             resolverProvider.refreshServerList(lbStrategy, servers);
         }
 

@@ -1,6 +1,7 @@
 package com.cht.easygrpc.helper;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * @author : chenhaitao934
@@ -118,5 +119,14 @@ public class CollectionHelper {
         List<T> list = new ArrayList<T>(t.length);
         Collections.addAll(list, t);
         return list;
+    }
+
+    public static <T> Optional<T> getFirstOptional(Collection<T> collection, Predicate<? super T> predicate) {
+        VerifyHelper.notNull(collection);
+        VerifyHelper.notNull(predicate);
+        return collection.stream()
+                .filter(predicate)
+                .findFirst();
+
     }
 }

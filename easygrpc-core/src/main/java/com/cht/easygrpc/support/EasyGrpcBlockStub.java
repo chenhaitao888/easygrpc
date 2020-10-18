@@ -31,7 +31,7 @@ public class EasyGrpcBlockStub<T> extends AbstractGrpcStub<T>{
     protected T doCall(Invocation invocation) throws Exception {
         long timeout = getTimeout(getServiceName(invocation.getIfaceName()), invocation.getMethodName());
         EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub blockingStub =
-                (EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub) createEasyGrpcServiceStub(invocation);
+                (EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub) createEasyGrpcServiceStub(invocation, timeout);
         EasyGrpcRequest request = buildRequest(invocation);
 
         Future<EasyGrpcResponse> responseFuture = submit(blockingStub, request);
@@ -45,7 +45,7 @@ public class EasyGrpcBlockStub<T> extends AbstractGrpcStub<T>{
     }
 
     @Override
-    protected AbstractStub createEasyGrpcServiceStub(ManagedChannel manageChannel, Invocation invocation) {
+    protected AbstractStub createEasyGrpcServiceStub(ManagedChannel manageChannel, Invocation invocation, long timeout) {
         EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub blockingStub = EasyGrpcServiceGrpc.newBlockingStub(manageChannel)
                 .withDeadlineAfter(timeout, TimeUnit.MILLISECONDS)
                 .withOption(IFACE_METHOD_KEY, getIfaceMethodKey(invocation.getIfaceName(), invocation.getMethodName()))
