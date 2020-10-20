@@ -4,6 +4,7 @@ import com.cht.easygrpc.EasyGrpcContext;
 import com.cht.easygrpc.concurrent.CustomizeThreadPollExecutor;
 import com.cht.easygrpc.discovery.EasyGrpcNameResolverProvider;
 import com.cht.easygrpc.loadbalance.EasyGrpcLoadBalanceProvider;
+import com.cht.easygrpc.loadbalance.RandomLoadBalancer;
 import io.grpc.*;
 
 import java.util.List;
@@ -60,7 +61,8 @@ public class EasyGrpcChannelManager {
 
     private ManagedChannel createChannel(String serviceName) {
         NameResolverRegistry.getDefaultRegistry().register(providerConcurrentHashMap.get(serviceName));
-        LoadBalancerRegistry.getDefaultRegistry().register(new EasyGrpcLoadBalanceProvider(serviceName));
+        //LoadBalancerRegistry.getDefaultRegistry().register(new EasyGrpcLoadBalanceProvider(serviceName));
+        LoadBalancerRegistry.getDefaultRegistry().register(new RandomLoadBalancer.Provider());
         ManagedChannel channel = ManagedChannelBuilder.forTarget(serviceName)
                 .executor(threadPoolExecutor)
                 .defaultLoadBalancingPolicy("customize")
