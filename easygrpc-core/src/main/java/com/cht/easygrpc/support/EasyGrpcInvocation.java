@@ -1,6 +1,10 @@
 package com.cht.easygrpc.support;
 
+import com.cht.easygrpc.exception.EasyGrpcException;
+
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.Map;
 
 /**
  * @author : chenhaitao934
@@ -21,6 +25,12 @@ public class EasyGrpcInvocation implements Invocation{
         this(method.getName(), serviceName, arguments);
         this.returnType = method.getReturnType();
         this.method = method;
+    }
+
+    public EasyGrpcInvocation(Method method, Map<String, Object> args){
+        this.returnType = method.getReturnType();
+        this.method = method;
+        this.arguments = getArgs(method, args);
     }
 
     public EasyGrpcInvocation(String methodName, String ifaceName, Object[] arguments) {
@@ -76,5 +86,19 @@ public class EasyGrpcInvocation implements Invocation{
 
     public void setIfaceName(String ifaceName) {
         this.ifaceName = ifaceName;
+    }
+
+
+    private Object[] getArgs(Method method, Map<String, Object> args) {
+        Parameter[] params = method.getParameters();
+        Object[] argArray = new Object[params.length];
+        for (int i = 0; i < params.length; i++) {
+            String para = "arg" + i;
+            if (!args.containsKey(para) && !args.containsKey(params[i].getName())) {
+                throw new EasyGrpcException("Parameter Map of Method(" + method.getName() + ") doesn't Contain Parameter(" + params[i].getName() + ")!");
+            }
+            argArray[i] = args.get(para) != null ? args.get(para) : args.get(params[i].getName());
+        }
+        return argArray;
     }
 }

@@ -1,7 +1,9 @@
 package com.cht.easygrpc.remoting;
 
 import com.cht.easygrpc.EasyGrpcContext;
+import com.cht.easygrpc.exception.EasyGrpcException;
 import com.cht.easygrpc.exception.RemotingException;
+import com.cht.easygrpc.helper.CollectionHelper;
 import com.cht.easygrpc.helper.StringHelper;
 import com.cht.easygrpc.remoting.iface.IServiceInitializer;
 import io.grpc.Server;
@@ -22,8 +24,8 @@ public class EasyGrpcServer extends AbstractRemotingServer{
 
     private static final int MAX_MESSAGE_SIZE = 20 * 1024 * 1024; // 接收消息最大20MB
 
-    public EasyGrpcServer(EasyGrpcContext context, IServiceInitializer initializer) {
-        super(context, initializer);
+    public EasyGrpcServer(EasyGrpcContext context) {
+        super(context);
     }
 
     @Override
@@ -32,12 +34,8 @@ public class EasyGrpcServer extends AbstractRemotingServer{
             return;
         }
         if(StringHelper.isEmpty(context.getServerConfig().getServiceName())){
-            throw new IllegalArgumentException("serverConf.getServiceName() is empty.");
+            throw new EasyGrpcException("serviceName is empty.");
         }
-        if (context.getServerConfig().getInterfaces() == null) {
-            throw new IllegalArgumentException("serverConf.getInterfaces() is empty.");
-        }
-        context.getServerConfig().setInterfaces(context.getServerConfig().getInterfaces().stream().filter(Objects::nonNull).collect(Collectors.toList()));
         try {
             nettyServerStart(context);
         } catch (Exception e) {

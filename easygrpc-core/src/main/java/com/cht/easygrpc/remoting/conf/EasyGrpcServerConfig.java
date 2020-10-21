@@ -20,7 +20,13 @@ public class EasyGrpcServerConfig {
 
     private Class<?> initializer;
 
+    private String[] servicePackages;
+
+    private String[] serviceImplPackages;
+
+
     private List<Class<?>> interfaces;
+
 
 
 
@@ -78,5 +84,21 @@ public class EasyGrpcServerConfig {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public String[] getServicePackages() {
+        return servicePackages;
+    }
+
+    public void setServicePackages(String[] servicePackages) {
+        this.servicePackages = servicePackages;
+    }
+
+    public String[] getServiceImplPackages() {
+        return serviceImplPackages;
+    }
+
+    public void setServiceImplPackages(String[] serviceImplPackages) {
+        this.serviceImplPackages = serviceImplPackages;
     }
 }

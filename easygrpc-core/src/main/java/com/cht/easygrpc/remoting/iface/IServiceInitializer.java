@@ -1,19 +1,34 @@
 package com.cht.easygrpc.remoting.iface;
 
+import com.cht.easygrpc.annotation.EasyGrpcService;
+import com.cht.easygrpc.support.EasyGrpcStub;
+import com.cht.easygrpc.support.proxy.ProxyFactory;
+
+import java.lang.annotation.Annotation;
+import java.util.Set;
+
 /**
  * @author : chenhaitao934
  * @date : 4:03 下午 2020/10/9
  */
 public interface IServiceInitializer {
 
-    default void init() {
+    default void init(String[] servicePackages, String[] serviceImplPackages, ProxyFactory proxyFactory) {
+        wrap(servicePackages, serviceImplPackages, proxyFactory);
     }
 
-    Object getImpl(Class<?> iface);
+    Set<Class<?>> getService();
 
-    default IInvokeHandler getHandler(Class<?> iface) {
+    default EasyGrpcStub getStub(Class<?> iface) {
         return null;
     }
 
     default void easyGrpcPostProcessor(){}
+
+    void wrap(String[] servicePackages, String[] serviceImplPackages, ProxyFactory proxyFactory);
+
+    Object getBean(Class<?> type);
+
+    EasyGrpcStub serviceStub(Class iface, Class<? extends Annotation> annotaion);
+
 }

@@ -1,5 +1,6 @@
 package com.cht.easygrpc.support;
 
+import com.cht.easygrpc.annotation.EasyGrpcService;
 import com.cht.easygrpc.enums.FileType;
 import com.cht.easygrpc.exception.ReflectException;
 import com.cht.easygrpc.helper.FileHelper;
@@ -7,6 +8,7 @@ import com.cht.easygrpc.helper.StringHelper;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -23,13 +25,16 @@ public class ClassScanner implements Scanner {
     }
 
     public Set<Class<?>> scan(String... packages) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        return (Set) Arrays.stream(packages).map((pkg) -> {
-            return this.scan(cl, pkg);
-        }).flatMap(Collection::stream).collect(Collectors.toSet());
+        return scan(packages, null);
+
     }
 
-    private Set<Class<?>> scan(ClassLoader cl, String pkg) {
+    public Set<Class<?>> scan(String[] packages, Class<? extends Annotation> annotation) {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        return Arrays.stream(packages).map((pkg) -> this.scan(cl, pkg, annotation)).flatMap(Collection::stream).collect(Collectors.toSet());
+    }
+
+    private Set<Class<?>> scan(ClassLoader cl, String pkg, Class<? extends Annotation> annotation) {
         String jarPath = pkg.replace('.', File.separatorChar);
         HashSet clzSet = new HashSet();
 
@@ -44,7 +49,7 @@ public class ClassScanner implements Scanner {
                     Throwable var9 = null;
 
                     try {
-                        clzSet.addAll(this.findAllClassInJar(cl, jarFile, jarPath));
+                        clzSet.addAll(this.findAllClassInJar(cl, jarFile, jarPath, annotation));
                     } catch (Throwable var19) {
                         var9 = var19;
                         throw var19;
@@ -63,7 +68,7 @@ public class ClassScanner implements Scanner {
 
                     }
                 } else if (resource.getProtocol().equals("file")) {
-                    clzSet.addAll(this.findAllClassInFolder(cl, new File(resource.toURI()), pkg));
+                    clzSet.addAll(this.findAllClassInFolder(cl, new File(resource.toURI()), pkg, annotation));
                 }
             }
 
@@ -73,12 +78,12 @@ public class ClassScanner implements Scanner {
         }
     }
 
-    private Set<Class<?>> findAllClassInFolder(ClassLoader cl, File folder, String pkg) {
+    private Set<Class<?>> findAllClassInFolder(ClassLoader cl, File folder, String pkg, Class<? extends Annotation> annotation) {
         Set<Class<?>> clzSet = new HashSet();
         if (!folder.isDirectory()) {
             return clzSet;
         } else {
-            File[] var5 = (File[])Optional.ofNullable(folder.listFiles()).orElse(new File[0]);
+            File[] var5 = Optional.ofNullable(folder.listFiles()).orElse(new File[0]);
             int var6 = var5.length;
 
             for(int var7 = 0; var7 < var6; ++var7) {
@@ -87,13 +92,22 @@ public class ClassScanner implements Scanner {
                     String className = this.getClassName(file.getName());
                     if (!StringHelper.isEmpty(className)) {
                         try {
-                            clzSet.add(cl.loadClass(String.join(".", pkg, className)));
+                            Class<?> aClass = cl.loadClass(String.join(".", pkg, className));
+                            if(annotation == null){
+                                clzSet.add(aClass);
+                            }else {
+                                if(null != aClass.getAnnotation(annotation)){
+                                    clzSet.add(aClass);
+                                }
+                            }
+
+                            //clzSet.add(cl.loadClass(String.join(".", pkg, className)));
                         } catch (ClassNotFoundException var11) {
                             //todo log
                         }
                     }
                 } else if (file.isDirectory()) {
-                    clzSet.addAll(this.findAllClassInFolder(cl, file, String.join(".", pkg, file.getName())));
+                    clzSet.addAll(this.findAllClassInFolder(cl, file, String.join(".", pkg, file.getName()), annotation));
                 }
             }
 
@@ -114,7 +128,7 @@ public class ClassScanner implements Scanner {
                 "";
     }
 
-    private Set<Class<?>> findAllClassInJar(ClassLoader cl, JarFile jarFile, String path) {
+    private Set<Class<?>> findAllClassInJar(ClassLoader cl, JarFile jarFile, String path, Class<? extends Annotation> annotation) {
         Set<Class<?>> clzSet = new HashSet();
         Enumeration entries = jarFile.entries();
 
@@ -122,7 +136,16 @@ public class ClassScanner implements Scanner {
             JarEntry entry = (JarEntry)entries.nextElement();
             if (entry.getName().startsWith(path) && entry.getName().endsWith(".class")) {
                 try {
-                    clzSet.add(cl.loadClass(entry.getName().replace(".class", "").replace(File.separatorChar, '.')));
+                    Class<?> aClass = cl.loadClass(entry.getName().replace(".class", "").replace(File.separatorChar, '.'));
+                    if(annotation == null){
+                        clzSet.add(aClass);
+                    }else {
+                        if(null != aClass.getAnnotation(annotation)){
+                            clzSet.add(aClass);
+                        }
+                    }
+
+
                 } catch (ClassNotFoundException var8) {
                     var8.printStackTrace();
                 }

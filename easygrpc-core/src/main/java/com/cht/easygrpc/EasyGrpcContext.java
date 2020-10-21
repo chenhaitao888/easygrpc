@@ -6,6 +6,7 @@ import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
 import com.cht.easygrpc.remoting.conf.EasyGrpcCommonConfig;
 import com.cht.easygrpc.remoting.conf.EasyGrpcServerConfig;
 import com.cht.easygrpc.runner.RpcRunnerPool;
+import com.cht.easygrpc.support.proxy.ProxyFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +27,8 @@ public class EasyGrpcContext {
     private EasyGrpcChannelManager easyGrpcChannelManager;
 
     private ConfigContext configContext;
+
+    private ProxyFactory proxyFactory;
 
     private final ThreadLocal<Map> TRACK = ThreadLocal.withInitial(HashMap<String, String>::new);
 
@@ -86,5 +89,13 @@ public class EasyGrpcContext {
 
     public void setConfigContext(ConfigContext configContext) {
         this.configContext = configContext;
+    }
+
+    public ProxyFactory getProxyFactory() {
+        return proxyFactory;
+    }
+
+    public void setProxyFactory(ProxyFactory proxyFactory) {
+        this.proxyFactory = proxyFactory;
     }
 }

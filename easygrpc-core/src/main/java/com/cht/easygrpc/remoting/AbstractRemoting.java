@@ -25,6 +25,10 @@ public abstract class AbstractRemoting {
 
     protected final Map<String, String> serviceIface = new ConcurrentHashMap<>();
 
+    public AbstractRemoting(){
+
+    }
+
     public AbstractRemoting(EasyGrpcContext context) {
         this.context = context;
         CustomizeThreadPollExecutor executor = new CustomizeThreadPollExecutor(context.getServerConfig().getServiceName(),

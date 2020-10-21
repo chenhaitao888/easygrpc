@@ -9,5 +9,5 @@ public interface EasyGrpcStub<T> {
 
     Class<T> getInterface();
 
-    T call(Invocation grpcInvocation) throws EasyGrpcException;
+    Object call(Invocation grpcInvocation) throws EasyGrpcException;
 }

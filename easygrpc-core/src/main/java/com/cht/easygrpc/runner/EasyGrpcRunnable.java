@@ -17,12 +17,17 @@ import com.cht.easygrpc.helper.StringHelper;
 import com.cht.easygrpc.remoting.iface.IInvokeHandler;
 import com.cht.easygrpc.remoting.iface.IServiceInitializer;
 import com.cht.easygrpc.remoting.iface.InvokeImplHandler;
+import com.cht.easygrpc.support.EasyGrpcInvocation;
+import com.cht.easygrpc.support.EasyGrpcStub;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.grpc.stub.StreamObserver;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.cht.easygrpc.constant.LogConstants.TAG_METHOD;
 import static com.cht.easygrpc.constant.LogConstants.TAG_SERVICE;
@@ -36,36 +41,23 @@ public class EasyGrpcRunnable implements Runnable{
     private EasyGrpcRequest request;
     private StreamObserver<EasyGrpcResponse> responseObserver;
     private EasyGrpcContext context;
-    private static Map<String, IInvokeHandler> handlers;
-    private Map<String, MethodAliasInfo> methodAliasInfoMap = new HashMap<>();
-    private IServiceInitializer initializer;
 
-    private ServiceInfo serviceInfo;
+    private Map<String, MethodAliasInfo> methodAliasInfoMap = new HashMap<>();
+
+    protected ServiceInfo serviceInfo;
+
+    protected Map<String, EasyGrpcStub> serviceStubMap;
+
 
     public EasyGrpcRunnable(EasyGrpcRequest request, StreamObserver<EasyGrpcResponse> responseObserver,
-                            EasyGrpcContext context, IServiceInitializer initializer) {
+                            EasyGrpcContext context, ServiceInfo serviceInfo, Map<String, EasyGrpcStub> serviceStubMap) {
         this.request = request;
         this.responseObserver = responseObserver;
         this.context = context;
-        serviceInfo = new ServiceInfo(context.getServerConfig().getServiceName(), context.getServerConfig().getInterfaces());
-        if(initializer == null){
-            initializer = initializer(context.getServerConfig().getInitializer());
-        }
-        this.initializer = initializer;
-        initializer.init();
-        handlers = genHandlers(context.getServerConfig().getInterfaces());
+        this.serviceInfo = serviceInfo;
+        this.serviceStubMap = serviceStubMap;
     }
 
-    private IServiceInitializer initializer(Class<?> initializer) {
-        if (initializer == null) {
-            throw new StartupException("Initializer Class is Null!");
-        }
-        try {
-            return (IServiceInitializer) initializer.newInstance();
-        } catch (ReflectiveOperationException | ClassCastException e) {
-            throw new StartupException("Invalid Initializer Class(" + initializer.getName() + ")!", e);
-        }
-    }
 
     @Override
     public void run() {
@@ -75,9 +67,14 @@ public class EasyGrpcRunnable implements Runnable{
         try {
             methodInfo = getMethodInfo(request.getIface(), request.getMethod());
             Map<String, Object> args = EasyRpcParseHelper.parseArgs(request.getRequestJson(), methodInfo);
-            resultObj = handlers.get(methodInfo.getIface()).invoke(methodInfo.getMethod(), args, null);
+
+            EasyGrpcInvocation invocation = new EasyGrpcInvocation(methodInfo.getMethod(), args);
+
+            resultObj = serviceStubMap.get(methodInfo.getIface()).call(invocation);
             String resultString = serializeResult(resultObj);
+
             response = EasyGrpcResponse.newBuilder().setCode(EasyGrpcResultStatus.SUCCESS.getCode()).setResultJson(resultString).build();
+
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         } catch (IllegalArgumentException e) {
@@ -95,29 +92,7 @@ public class EasyGrpcRunnable implements Runnable{
         }
     }
 
-    private Map<String, IInvokeHandler> genHandlers(List<Class<?>> interfaces) {
-        Map<String, IInvokeHandler> handlers = new HashMap<>();
-        interfaces.forEach(iface -> handlers.put(iface.getName(), genHandler(iface)));
-        return handlers;
-    }
 
-    private IInvokeHandler genHandler(Class<?> iface) {
-        Object impl = initializer.getImpl(iface);
-        if (impl != null) {
-            if (iface.isAssignableFrom(impl.getClass())) {
-                return new InvokeImplHandler(impl);
-            } else {
-                throw new StartupException("Interface(" + iface.getName() + ") Gets a Wrong Impl(" + impl.getClass().getName() + ")!");
-            }
-        }
-
-        IInvokeHandler invokeHandler = initializer.getHandler(iface);
-        if (invokeHandler != null) {
-            return invokeHandler;
-        }
-
-        throw new StartupException("Interface(" + iface.getName() + ") has No Impl or Handler!");
-    }
 
     public  String serializeResult(Object result) {
         try {

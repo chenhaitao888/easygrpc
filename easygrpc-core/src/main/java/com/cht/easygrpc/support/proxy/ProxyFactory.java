@@ -12,4 +12,7 @@ import com.cht.easygrpc.support.EasyGrpcStub;
 public interface ProxyFactory {
 
     <T> T getProxy(EasyGrpcStub<T> stub) throws EasyGrpcException;
+
+    <T> EasyGrpcStub<T> getStub(T proxy, Class<T> type) throws EasyGrpcException;
+
 }

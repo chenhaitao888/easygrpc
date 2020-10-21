@@ -1,5 +1,8 @@
 package com.cht.easygrpc.support;
 
+import com.cht.easygrpc.annotation.EasyGrpcService;
+
+import java.lang.annotation.Annotation;
 import java.util.Set;
 
 /**
@@ -7,4 +10,5 @@ import java.util.Set;
  */
 public interface Scanner {
     Set<Class<?>> scan(String... var1);
+
 }
