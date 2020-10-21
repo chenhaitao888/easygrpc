@@ -25,7 +25,7 @@ public class ClassScanner implements Scanner {
     }
 
     public Set<Class<?>> scan(String... packages) {
-        return scan(packages, null);
+        return scan(packages, null).stream().filter(e -> e.isInterface()).collect(Collectors.toSet());
 
     }
 

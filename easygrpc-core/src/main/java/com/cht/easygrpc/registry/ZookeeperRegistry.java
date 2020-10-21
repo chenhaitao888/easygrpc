@@ -159,6 +159,14 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
         }
     }
 
+    public ChildData getServerData(){
+        try {
+            return new ChildData(serverNodePath, EMPTY_STAT, client.getData().forPath(serverNodePath));
+        } catch (Exception e) {
+            throw new RegistryException("get data from failure", e);
+        }
+    }
+
     protected Stat setData(String path, byte[] data) {
         try {
             return getClient().setData().forPath(path, data);
@@ -221,16 +229,7 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
             resolverProvider.refreshServerList(lbStrategy, servers);
         }
 
-        private List<Map<String, Object>> assembleServers(EasyGrpcServiceNode.Data serverData) {
-            List<Map<String, Object>> servers = new ArrayList<>();
-            List<String> address = serverData.getAddress();
-            address.forEach(e -> {
-                String[] split = e.split(":");
-                Map<String, Object> stringObjectMap = serverData.buildMap(split[0], Integer.parseInt(split[1]));
-                servers.add(stringObjectMap);
-            });
-            return servers;
-        }
+
     }
 
     private void updateServerNode(String serverNodePath, EasyGrpcServiceNode.Data serverData) {
@@ -310,5 +309,16 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
             leaderSelector.start();
         }
 
+    }
+
+    public List<Map<String, Object>> assembleServers(EasyGrpcServiceNode.Data serverData) {
+        List<Map<String, Object>> servers = new ArrayList<>();
+        List<String> address = serverData.getAddress();
+        address.forEach(e -> {
+            String[] split = e.split(":");
+            Map<String, Object> stringObjectMap = serverData.buildMap(split[0], Integer.parseInt(split[1]));
+            servers.add(stringObjectMap);
+        });
+        return servers;
     }
 }

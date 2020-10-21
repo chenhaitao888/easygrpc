@@ -18,7 +18,7 @@ public class WrapGrpcStub<T> implements EasyGrpcStub<T>{
     }
 
     @Override
-    public T call(Invocation grpcInvocation) throws EasyGrpcException {
+    public Object call(Invocation grpcInvocation) throws EasyGrpcException {
         return invoker.call(grpcInvocation);
     }
 }

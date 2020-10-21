@@ -5,9 +5,12 @@ import com.cht.easygrpc.concurrent.CustomizeThreadPollExecutor;
 import com.cht.easygrpc.discovery.EasyGrpcNameResolverProvider;
 import com.cht.easygrpc.loadbalance.EasyGrpcLoadBalanceProvider;
 import com.cht.easygrpc.loadbalance.RandomLoadBalancer;
+import com.cht.easygrpc.registry.EasyGrpcRegistry;
+import com.cht.easygrpc.registry.EasyGrpcServiceNode;
 import io.grpc.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -39,11 +42,14 @@ public class EasyGrpcChannelManager {
         //initChannel(context.getClientConfig().getClientName());
     }
 
-    private void initProvider(String serviceName) {
+    public void initProvider(String serviceName, EasyGrpcRegistry grpcRegistry) {
         checkArgument(serviceName != null, "serviceName is null");
+        EasyGrpcServiceNode node = new EasyGrpcServiceNode(grpcRegistry.getServerData());
+        EasyGrpcServiceNode.Data serverData = node.getData();
+        List<Map<String, Object>> servers = grpcRegistry.assembleServers(serverData);
         EasyGrpcNameResolverProvider resolverProvider = providerConcurrentHashMap.get(serviceName);
         if(resolverProvider == null){
-            resolverProvider = new EasyGrpcNameResolverProvider(null, 0); // todo 获取服务地址列表及负载均衡策略
+            resolverProvider = new EasyGrpcNameResolverProvider(servers, 0);
             providerConcurrentHashMap.put(serviceName, resolverProvider);
         }
     }
@@ -83,5 +89,6 @@ public class EasyGrpcChannelManager {
     public ManagedChannel getManageChannel(String serviceName){
         return serviceChannelMap.get(serviceName);
     }
+
 
 }
