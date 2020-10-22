@@ -8,4 +8,6 @@ public interface ExtRpcConfig {
     String RPC_LOGGER = "rpc.logger";
 
     String RPC_PROXY = "rpc.proxy";
+
+    String RPC_CLIENT_STUB = "rpc.client.stub";
 }

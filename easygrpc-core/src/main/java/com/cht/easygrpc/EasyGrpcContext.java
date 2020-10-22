@@ -9,6 +9,7 @@ import com.cht.easygrpc.runner.RpcRunnerPool;
 import com.cht.easygrpc.support.proxy.ProxyFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,7 +19,7 @@ import java.util.Map;
 public class EasyGrpcContext {
     private EasyGrpcServerConfig serverConfig;
 
-    private EasyGrpcClientConfig clientConfig;
+    private List<EasyGrpcClientConfig> clientConfigs;
 
     private RpcRunnerPool rpcRunnerPool;
 
@@ -59,12 +60,12 @@ public class EasyGrpcContext {
         this.rpcRunnerPool = rpcRunnerPool;
     }
 
-    public EasyGrpcClientConfig getClientConfig() {
-        return clientConfig;
+    public List<EasyGrpcClientConfig> getClientConfigs() {
+        return clientConfigs;
     }
 
-    public void setClientConfig(EasyGrpcClientConfig clientConfig) {
-        this.clientConfig = clientConfig;
+    public void setClientConfigs(List<EasyGrpcClientConfig> clientConfigs) {
+        this.clientConfigs = clientConfigs;
     }
 
     public EasyGrpcCommonConfig getCommonConfig() {

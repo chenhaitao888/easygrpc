@@ -101,7 +101,11 @@
             <version>20.0</version>
         </dependency>
 
-
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${injector.version}</version>
+        </dependency>
     </dependencies>
 
 

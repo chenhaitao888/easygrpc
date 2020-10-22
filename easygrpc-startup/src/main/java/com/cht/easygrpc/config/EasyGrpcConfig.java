@@ -12,17 +12,17 @@ import java.util.List;
  */
 public class EasyGrpcConfig extends AbstracConfig<EasyGrpcConfig> {
 
-    private EasyGrpcClientConfig clientConfig;
+    private List<EasyGrpcClientConfig> clientConfig;
 
     private EasyGrpcServerConfig serverConfig;
 
-    private List<EasyGrpcCommonConfig> commonConfig;
+    private EasyGrpcCommonConfig commonConfig;
 
-    public EasyGrpcClientConfig getClientConfig() {
+    public List<EasyGrpcClientConfig> getClientConfig() {
         return clientConfig;
     }
 
-    public void setClientConfig(EasyGrpcClientConfig clientConfig) {
+    public void setClientConfig(List<EasyGrpcClientConfig> clientConfig) {
         this.clientConfig = clientConfig;
     }
 
@@ -34,11 +34,11 @@ public class EasyGrpcConfig extends AbstracConfig<EasyGrpcConfig> {
         this.serverConfig = serverConfig;
     }
 
-    public List<EasyGrpcCommonConfig> getCommonConfig() {
+    public EasyGrpcCommonConfig getCommonConfig() {
         return commonConfig;
     }
 
-    public void setCommonConfig(List<EasyGrpcCommonConfig> commonConfig) {
+    public void setCommonConfig(EasyGrpcCommonConfig commonConfig) {
         this.commonConfig = commonConfig;
     }
 }

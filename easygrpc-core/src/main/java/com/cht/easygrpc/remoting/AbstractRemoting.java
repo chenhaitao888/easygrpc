@@ -40,13 +40,20 @@ public abstract class AbstractRemoting {
     }
 
     private void initServiceIface(EasyGrpcContext context) {
-        EasyGrpcClientConfig clientConfig = context.getClientConfig();
-        if(clientConfig == null){
-            return;
-        }
-        List<String> ifaceNames = clientConfig.getIfaceNames();
-        if(CollectionHelper.isNotEmpty(ifaceNames)){
-            ifaceNames.forEach(e -> serviceIface.put(e, clientConfig.getClientName()));
+        List<EasyGrpcClientConfig> clientConfigs = context.getClientConfigs();
+        if(CollectionHelper.isNotEmpty(clientConfigs)){
+            clientConfigs.forEach(clientConfig -> {
+                if(clientConfig == null){
+                    return;
+                }
+                List<String> ifaceNames = clientConfig.getIfaceNames();
+                if(CollectionHelper.isNotEmpty(ifaceNames)){
+                    ifaceNames.forEach(e -> {
+                        serviceIface.put(e, clientConfig.getClientName());
+                        context.getConfigContext().putStubType(e, clientConfig.getStubType());
+                    });
+                }
+            });
         }
     }
 

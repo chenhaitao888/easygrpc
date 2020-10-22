@@ -16,6 +16,7 @@
     <properties>
         <jackson.version>2.9.8</jackson.version>
         <curator.version>2.12.0</curator.version>
+        <injector.version>4.1.0</injector.version>
     </properties>
 
     <dependencies>
@@ -57,6 +58,11 @@
             <artifactId>curator-test</artifactId>
             <version>${curator.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${injector.version}</version>
         </dependency>
     </dependencies>
 

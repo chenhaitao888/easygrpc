@@ -11,6 +11,7 @@ import com.cht.easygrpc.helper.GrpcParseHelper;
 import com.cht.easygrpc.helper.StringHelper;
 import com.cht.easygrpc.remoting.AbstractRemoting;
 import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
+import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
 import com.cht.easygrpc.remoting.conf.EasyGrpcMethodConfig;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.AbstractStub;
@@ -39,6 +40,8 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
     protected final Map<String, String> baseParameter = new ConcurrentHashMap<>();
 
     protected final AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+
+    protected final Map<String, EasyGrpcClientConfig> clientConfigMap = new ConcurrentHashMap<>();
 
     public AbstractGrpcStub(Class<T> type, EasyGrpcContext context) {
         this(type,null, context);
@@ -117,7 +120,7 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
         if(methodConfig != null && methodConfig.getTimeoutInMillis() > 0){
             return methodConfig.getTimeoutInMillis();
         }
-        return context.getClientConfig().getTimeoutInMillis();
+        return context.getConfigContext().getClientConfig(serviceName).getTimeoutInMillis();
     }
 
     protected AbstractStub createEasyGrpcServiceStub(Invocation invocation, long timeout){

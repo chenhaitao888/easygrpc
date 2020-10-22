@@ -13,6 +13,8 @@ public class ConfigContext {
 
     private static Map<String, EasyGrpcMethodConfig> methodConfigMap = new ConcurrentHashMap<>();
 
+    private static Map<String, Integer> stub = new ConcurrentHashMap<>();
+
     private static boolean isServer = false;
 
     public EasyGrpcClientConfig getClientConfig(String clientName) {
@@ -40,6 +42,14 @@ public class ConfigContext {
             EasyGrpcClientConfig clientConfig = getClientConfig(key);
             return EasyGrpcMethodConfig.newInstance(iface, method, clientConfig);
         });
+    }
+
+    public void putStubType(String iface, Integer type){
+        stub.put(iface, type);
+    }
+
+    public Integer getStubType(String iface){
+        return stub.get(iface);
     }
 
     public static boolean isServer() {

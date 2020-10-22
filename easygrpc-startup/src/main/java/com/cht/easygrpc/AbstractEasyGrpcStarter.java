@@ -3,6 +3,7 @@ package com.cht.easygrpc;
 import com.cht.easygrpc.config.EasyGrpcConfig;
 import com.cht.easygrpc.exception.EasyGrpcException;
 import com.cht.easygrpc.exception.RemotingException;
+import com.cht.easygrpc.helper.CollectionHelper;
 import com.cht.easygrpc.helper.GenericsHelper;
 import com.cht.easygrpc.helper.JsonClientHelper;
 import com.cht.easygrpc.helper.NetHelper;
@@ -11,9 +12,12 @@ import com.cht.easygrpc.registry.Registry;
 import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
 import com.cht.easygrpc.remoting.EasyGrpcServer;
 import com.cht.easygrpc.remoting.conf.ConfigContext;
+import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
 import com.cht.easygrpc.runner.RpcRunnerPool;
 import com.cht.easygrpc.spi.ServiceProviderInterface;
 import com.cht.easygrpc.support.AliveKeeping;
+import com.cht.easygrpc.support.instance.Container;
+import com.cht.easygrpc.support.instance.EasyGrpcInjector;
 import com.cht.easygrpc.support.proxy.ProxyFactory;
 
 import java.util.Collections;
@@ -35,6 +39,8 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
     protected Registry registry;
 
     protected AtomicBoolean started = new AtomicBoolean(false);
+
+    protected Container container = EasyGrpcInjector.getInstance(Container.class);
 
     public AbstractEasyGrpcStarter(Context context, Class<?> initializer) {
         this.context = getContext();
@@ -80,21 +86,33 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
     }
 
     private void afterRemotingStart() {
-        try {
-            List<Class<?>> clazz = grpcConfig.getClientConfig().getIfaceNames().stream().map(e -> {
+        List<EasyGrpcClientConfig> clientConfigs = grpcConfig.getClientConfig();
+        if(CollectionHelper.isNotEmpty(clientConfigs)){
+            clientConfigs.forEach(clientConfig -> {
                 try {
-                    return Class.forName(e);
-                } catch (ClassNotFoundException classNotFoundException) {
-                    throw new EasyGrpcException(e);
+                    List<Class<?>> clazz = clientConfig.getIfaceNames().stream().map(e -> {
+                        try {
+                            return Class.forName(e);
+                        } catch (ClassNotFoundException classNotFoundException) {
+                            throw new EasyGrpcException(e);
+                        }
+                    }).collect(Collectors.toList());
+                    JsonClientHelper.add(clientConfig.getClientName(), clazz);
+
+                    createInstance(clazz);
+
+                    context.getEasyGrpcChannelManager().initProvider();
+
+                } catch (Exception e) {
+                    throw new EasyGrpcException("after remoting start failure", e);
                 }
-            }).collect(Collectors.toList());
-            JsonClientHelper.add(grpcConfig.getClientConfig().getClientName(), clazz);
-
-            context.getEasyGrpcChannelManager().initProvider();
-
-        } catch (Exception e) {
-            throw new EasyGrpcException("after remoting start failure", e);
+            });
         }
+
+    }
+
+    private void createInstance(List<Class<?>> clazz) {
+        clazz.forEach(e -> container.createInstance(e));
     }
 
     private void registry() {
@@ -138,11 +156,15 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
 
     private void initConfig() {
         ConfigContext configContext = new ConfigContext();
+        List<EasyGrpcClientConfig> clientConfig = grpcConfig.getClientConfig();
         grpcConfig.getServerConfig().setIp(NetHelper.getLocalHost());
-        configContext.putClientConfig(grpcConfig.getClientConfig());
         context.setServerConfig(grpcConfig.getServerConfig());
-        context.setClientConfig(grpcConfig.getClientConfig());
+        context.setClientConfigs(clientConfig);
         context.setCommonConfig(grpcConfig.getCommonConfig());
         context.setConfigContext(configContext);
+        if(CollectionHelper.isNotEmpty(clientConfig)){
+            clientConfig.forEach(e -> configContext.putClientConfig(e));
+        }
+
     }
 }

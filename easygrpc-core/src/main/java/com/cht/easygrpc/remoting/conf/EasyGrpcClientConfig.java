@@ -20,6 +20,8 @@ public class EasyGrpcClientConfig {
 
     private int queueCapacity = 1000;
 
+    private int stubType;
+
     public String getClientName() {
         return clientName;
     }
@@ -66,5 +68,13 @@ public class EasyGrpcClientConfig {
 
     public void setQueueCapacity(int queueCapacity) {
         this.queueCapacity = queueCapacity;
+    }
+
+    public int getStubType() {
+        return stubType;
+    }
+
+    public void setStubType(int stubType) {
+        this.stubType = stubType;
     }
 }
