@@ -159,6 +159,7 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
         }
     }
 
+    @Override
     public ChildData getServerData(){
         try {
             return new ChildData(serverNodePath, EMPTY_STAT, client.getData().forPath(serverNodePath));
@@ -311,6 +312,7 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
 
     }
 
+    @Override
     public List<Map<String, Object>> assembleServers(EasyGrpcServiceNode.Data serverData) {
         List<Map<String, Object>> servers = new ArrayList<>();
         List<String> address = serverData.getAddress();

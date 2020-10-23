@@ -37,6 +37,7 @@ public class ProxyTest {
         serverConfig.setServiceName("EasyGrpcTest");
         context.setServerConfig(serverConfig);
         ConfigContext configContext = new ConfigContext();
+        List<EasyGrpcClientConfig> clientConfigs = new ArrayList<>();
         EasyGrpcClientConfig clientConfig = new EasyGrpcClientConfig();
         clientConfig.setClientName("EasyGrpcTest");
         List<String> list = new ArrayList<>();
@@ -44,7 +45,8 @@ public class ProxyTest {
         clientConfig.setIfaceNames(list);
         JsonClientHelper.add(clientConfig.getClientName(), Collections.singletonList(Class.forName("com.cht.easygrpc.remoting.iface.EasyGrpcTest")));
         configContext.putClientConfig(clientConfig);
-        context.setClientConfig(clientConfig);
+        clientConfigs.add(clientConfig);
+        context.setClientConfigs(clientConfigs);
         context.setConfigContext(configContext);
         EasyGrpcChannelManager channelManager = new EasyGrpcChannelManager(context);
         List<Map<String, Object>> initAddress = new ArrayList<>();

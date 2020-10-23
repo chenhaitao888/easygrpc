@@ -7,6 +7,7 @@ import com.cht.easygrpc.loadbalance.EasyGrpcLoadBalanceProvider;
 import com.cht.easygrpc.loadbalance.RandomLoadBalancer;
 import com.cht.easygrpc.registry.EasyGrpcRegistry;
 import com.cht.easygrpc.registry.EasyGrpcServiceNode;
+import com.cht.easygrpc.registry.Registry;
 import io.grpc.*;
 
 import java.util.List;
@@ -42,7 +43,7 @@ public class EasyGrpcChannelManager {
         //initChannel(context.getClientConfig().getClientName());
     }
 
-    public void initProvider(String serviceName, EasyGrpcRegistry grpcRegistry) {
+    public void initProvider(String serviceName, Registry grpcRegistry) {
         checkArgument(serviceName != null, "serviceName is null");
         EasyGrpcServiceNode node = new EasyGrpcServiceNode(grpcRegistry.getServerData());
         EasyGrpcServiceNode.Data serverData = node.getData();

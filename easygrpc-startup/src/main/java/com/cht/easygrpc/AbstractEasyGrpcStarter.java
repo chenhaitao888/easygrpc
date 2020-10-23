@@ -101,7 +101,7 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
 
                     createInstance(clazz);
 
-                    context.getEasyGrpcChannelManager().initProvider();
+                    context.getEasyGrpcChannelManager().initProvider(clientConfig.getClientName(), registry);
 
                 } catch (Exception e) {
                     throw new EasyGrpcException("after remoting start failure", e);
