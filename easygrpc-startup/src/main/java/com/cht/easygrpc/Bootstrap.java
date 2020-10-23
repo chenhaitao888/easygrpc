@@ -5,6 +5,7 @@ import com.cht.easygrpc.exception.EasyGrpcException;
 import com.cht.easygrpc.registry.EasyGrpcRegistry;
 import com.cht.easygrpc.remoting.conf.EasyGrpcCommonConfig;
 import com.cht.easygrpc.remoting.conf.EasyGrpcServerConfig;
+import com.cht.easygrpc.remoting.iface.EasyGrpcServiceInitializer;
 import com.cht.easygrpc.support.AliveKeeping;
 
 import java.io.File;
@@ -19,8 +20,8 @@ import java.io.IOException;
 public class Bootstrap extends AbstractEasyGrpcStarter<EasyGrpcContext>{
 
 
-    public Bootstrap(EasyGrpcContext context, Class<?> initializer) {
-        super(context, initializer);
+    public Bootstrap() {
+        this.initializer = EasyGrpcServiceInitializer.class;
     }
 
     public EasyGrpcConfig loadConfig()  {
@@ -32,6 +33,7 @@ public class Bootstrap extends AbstractEasyGrpcStarter<EasyGrpcContext>{
             FileInputStream in = new FileInputStream(file);
             grpcConfig = grpcConfig.fromYAML(in);
         } catch (IOException e) {
+            // todo
             e.printStackTrace();
         }
 

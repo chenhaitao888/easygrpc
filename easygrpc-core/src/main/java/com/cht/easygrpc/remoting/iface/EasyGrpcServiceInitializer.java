@@ -54,6 +54,9 @@ public class EasyGrpcServiceInitializer implements IServiceInitializer{
         Set<Class<?>> impl = new ClassScanner().scan(serviceImplPackages, annotaion);
         Class<?> proxy = CollectionHelper.getFirstOptional(impl, iface::isAssignableFrom)
                 .orElse(null);
+        if(proxy == null){
+            return null;
+        }
         Object bean = getBean(proxy);
         if(bean == null){
             return null;

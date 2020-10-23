@@ -13,7 +13,7 @@ import java.util.Map;
  * @author : chenhaitao934
  * @date : 4:08 下午 2020/10/9
  */
-public class InvokeImplHandler implements IInvokeHandler {
+/*public class InvokeImplHandler implements IInvokeHandler {
 
     private final Object impl;
 
@@ -55,4 +55,4 @@ public class InvokeImplHandler implements IInvokeHandler {
         }
         return argArray;
     }
-}
+}*/

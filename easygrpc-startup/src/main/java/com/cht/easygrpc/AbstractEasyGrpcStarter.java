@@ -42,10 +42,9 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
 
     protected Container container = EasyGrpcInjector.getInstance(Container.class);
 
-    public AbstractEasyGrpcStarter(Context context, Class<?> initializer) {
+    public AbstractEasyGrpcStarter() {
         this.context = getContext();
         grpcConfig = loadConfig();
-        this.initializer = initializer;
     }
 
     protected abstract EasyGrpcConfig loadConfig();
@@ -54,7 +53,7 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
     private Context getContext() {
         try {
             return ((Class<Context>)
-                    GenericsHelper.getSuperClassGenericType(this.getClass(), 1))
+                    GenericsHelper.getSuperClassGenericType(this.getClass(), 0))
                     .newInstance();
         } catch (InstantiationException e) {
             throw new RuntimeException(e);

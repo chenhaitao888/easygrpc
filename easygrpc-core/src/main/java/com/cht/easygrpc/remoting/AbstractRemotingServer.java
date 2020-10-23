@@ -12,7 +12,6 @@ import com.cht.easygrpc.exception.RemotingException;
 import com.cht.easygrpc.exception.StartupException;
 import com.cht.easygrpc.helper.CollectionHelper;
 import com.cht.easygrpc.remoting.conf.EasyGrpcServerConfig;
-import com.cht.easygrpc.remoting.iface.IInvokeHandler;
 import com.cht.easygrpc.remoting.iface.IServiceInitializer;
 import com.cht.easygrpc.support.EasyGrpcStub;
 import com.google.common.collect.Lists;
@@ -55,7 +54,13 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
         if (!CollectionHelper.isNotEmpty(interfaces)) {
             throw new EasyGrpcException("interfaces is empty.");
         }
-        interfaces.forEach(iface -> serviceStubMap.put(iface.getName(), genServiceStub(iface, EasyGrpcService.class)));
+        interfaces.forEach(iface -> {
+            EasyGrpcStub easyGrpcStub = genServiceStub(iface,
+                    EasyGrpcService.class);
+            if(null != easyGrpcStub){
+                serviceStubMap.put(iface.getName(), easyGrpcStub);
+            }
+        });
     }
 
     private EasyGrpcStub genServiceStub(Class<?> iface, Class<? extends Annotation> annotation) {

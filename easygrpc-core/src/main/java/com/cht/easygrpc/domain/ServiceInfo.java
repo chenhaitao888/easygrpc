@@ -22,7 +22,8 @@ public class ServiceInfo {
         try {
             interfaces.stream().filter(Objects::nonNull).forEach(iface -> interfaceInfos.put(iface.getName(), new InterfaceInfo(iface)));
         } catch (Exception e) {
-            throw new EasyGrpcException(String.format("serviceInfo error, check your soa conf. serviceName:%s, ifaces:%s", name, interfaces), e);
+            throw new EasyGrpcException(String.format("serviceInfo error, check your easygrpc conf. serviceName:%s, " +
+                    "ifaces:%s", name, interfaces), e);
         }
     }
 

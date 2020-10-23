@@ -35,10 +35,10 @@ public class EasyGrpcBlockStub<T> extends AbstractGrpcStub<T>{
         EasyGrpcRequest request = buildRequest(invocation);
 
         Future<EasyGrpcResponse> responseFuture = submit(blockingStub, request);
-        EasyGrpcResponse soaInvokerResponse = responseFuture.get(timeout, TimeUnit.MILLISECONDS);
-        checkResponseCode(soaInvokerResponse);
+        EasyGrpcResponse easyGrpcResponse = responseFuture.get(timeout, TimeUnit.MILLISECONDS);
+        checkResponseCode(easyGrpcResponse);
 
-        T result = GrpcParseHelper.parseResult(soaInvokerResponse.getResultJson(), getServiceName(invocation.getIfaceName()),
+        T result = GrpcParseHelper.parseResult(easyGrpcResponse.getResultJson(), getServiceName(invocation.getIfaceName()),
                 invocation.getMethod());
         logForResponse(invocation.getMethod(), result);
         return result;

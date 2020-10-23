@@ -13,9 +13,12 @@ commonConfig:
     easygrpc.logger: "slf4j"
     easygrpc.proxy: "jdk"
 
-clientConfig:
-  clientName: "EasyGrpcTest"
-  ifaceNames: ["com.cht.easygrpc.remoting.iface.EasyGrpcTest"]
-  workThreads: 20
-  timeoutInMillis: 5000
-  queueCapacity: 500
+clientConfig: [
+  {
+    clientName: "EasyGrpcTest",
+    ifaceNames: ["com.cht.easygrpc.remoting.iface.EasyGrpcTest"],
+    workThreads: 20,
+    timeoutInMillis: 5000,
+    queueCapacity: 500
+  }
+]
