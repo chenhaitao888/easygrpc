@@ -3,6 +3,8 @@ package com.cht.easygrpc.remoting;
 import com.cht.easygrpc.EasyGrpcContext;
 import com.cht.easygrpc.concurrent.CustomizeThreadPollExecutor;
 import com.cht.easygrpc.helper.CollectionHelper;
+import com.cht.easygrpc.logger.Logger;
+import com.cht.easygrpc.logger.LoggerFactory;
 import com.cht.easygrpc.remoting.conf.ConfigContext;
 import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
 import com.cht.easygrpc.support.EasyGrpcBlockStub;
@@ -19,11 +21,15 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public abstract class AbstractRemoting {
 
+    protected final static Logger LOGGER = LoggerFactory.getLogger(AbstractRemoting.class.getName());
+
+
     protected ThreadPoolExecutor threadPoolExecutor;
 
     protected EasyGrpcContext context;
 
     protected final Map<String, String> serviceIface = new ConcurrentHashMap<>();
+
 
     public AbstractRemoting(){
 

@@ -12,6 +12,8 @@ import com.cht.easygrpc.exception.NoAvailableWorkThreadException;
 import com.cht.easygrpc.exception.RemotingException;
 import com.cht.easygrpc.exception.StartupException;
 import com.cht.easygrpc.helper.CollectionHelper;
+import com.cht.easygrpc.logger.Logger;
+import com.cht.easygrpc.logger.LoggerFactory;
 import com.cht.easygrpc.remoting.conf.EasyGrpcServerConfig;
 import com.cht.easygrpc.remoting.iface.IServiceInitializer;
 import com.cht.easygrpc.support.EasyGrpcStub;
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
  * @date : 2:11 下午 2020/10/9
  */
 public abstract class AbstractRemotingServer extends AbstractRemoting implements EasyGrpcRemotingServer{
+
 
     protected IServiceInitializer initializer;
     protected ServiceInfo serviceInfo;
@@ -110,7 +113,7 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
                 try {
                     server.awaitTermination();
                 } catch (InterruptedException e) {
-                    //todo log
+                    LOGGER.error("awaitTermination failure", e);
                 }
             });
 

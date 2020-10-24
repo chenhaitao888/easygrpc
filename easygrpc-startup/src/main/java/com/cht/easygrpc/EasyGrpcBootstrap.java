@@ -17,24 +17,25 @@ import java.io.IOException;
  * @author : chenhaitao934
  * @date : 5:21 下午 2020/10/12
  */
-public class Bootstrap extends AbstractEasyGrpcStarter<EasyGrpcContext>{
+public class EasyGrpcBootstrap extends AbstractEasyGrpcStarter<EasyGrpcContext>{
 
 
-    public Bootstrap() {
+    public EasyGrpcBootstrap() {
         this.initializer = EasyGrpcServiceInitializer.class;
     }
 
     public EasyGrpcConfig loadConfig()  {
-        EasyGrpcConfig grpcConfig = null;
+        EasyGrpcConfig grpcConfig;
         try {
             grpcConfig = new EasyGrpcConfig();
             String confPath = this.getClass().getClassLoader().getResource("easy-grpc.yml").getFile();
+            String log4jPath = this.getClass().getClassLoader().getResource("log4j.properties").getFile();
             File file = new File(confPath);
             FileInputStream in = new FileInputStream(file);
             grpcConfig = grpcConfig.fromYAML(in);
+            grpcConfig.setLog4jPath(log4jPath);
         } catch (IOException e) {
-            // todo
-            e.printStackTrace();
+            throw new EasyGrpcException("loadConfig failure", e);
         }
 
         return grpcConfig;

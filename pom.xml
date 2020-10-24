@@ -17,6 +17,7 @@
         <jackson.version>2.9.8</jackson.version>
         <curator.version>2.12.0</curator.version>
         <injector.version>4.1.0</injector.version>
+        <slf4j.version>1.7.6</slf4j.version>
     </properties>
 
     <dependencies>
@@ -64,6 +65,24 @@
             <artifactId>guice</artifactId>
             <version>${injector.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <!--<dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>-->
     </dependencies>
 
     <build>

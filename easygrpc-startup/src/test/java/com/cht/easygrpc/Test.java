@@ -10,7 +10,7 @@ import com.cht.easygrpc.support.instance.EasyGrpcInjector;
 public class Test {
 
     public static void main(String[] args) {
-        Bootstrap bootstrap = new Bootstrap();
+        EasyGrpcBootstrap bootstrap = new EasyGrpcBootstrap();
         bootstrap.start();
 
         Container container = EasyGrpcInjector.getInstance(Container.class);

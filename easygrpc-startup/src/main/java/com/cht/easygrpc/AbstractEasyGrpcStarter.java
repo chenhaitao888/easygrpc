@@ -7,8 +7,11 @@ import com.cht.easygrpc.helper.CollectionHelper;
 import com.cht.easygrpc.helper.GenericsHelper;
 import com.cht.easygrpc.helper.JsonClientHelper;
 import com.cht.easygrpc.helper.NetHelper;
+import com.cht.easygrpc.logger.Logger;
+import com.cht.easygrpc.logger.LoggerFactory;
 import com.cht.easygrpc.registry.EasyGrpcRegistry;
 import com.cht.easygrpc.registry.Registry;
+import com.cht.easygrpc.remoting.AbstractRemoting;
 import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
 import com.cht.easygrpc.remoting.EasyGrpcServer;
 import com.cht.easygrpc.remoting.conf.ConfigContext;
@@ -19,6 +22,7 @@ import com.cht.easygrpc.support.AliveKeeping;
 import com.cht.easygrpc.support.instance.Container;
 import com.cht.easygrpc.support.instance.EasyGrpcInjector;
 import com.cht.easygrpc.support.proxy.ProxyFactory;
+import org.apache.log4j.PropertyConfigurator;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +33,8 @@ import java.util.stream.Collectors;
  * @author : chenhaitao934
  */
 public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
+
+    protected static Logger LOGGER;
 
     protected Context context;
 
@@ -64,23 +70,33 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
 
     public void start(){
 
-        if(started.compareAndSet(false, true)){
-            initConfig();
+        try {
+            if(started.compareAndSet(false, true)){
 
-            initializer();
+                initConfig();
 
-            beforeRemotingStart();
-            initRegistry();
+                initializer();
 
-            remotingStart();
+                beforeRemotingStart();
+                initRegistry();
 
-            registry();
+                remotingStart();
 
-            afterRemotingStart();
+                registry();
 
-            AliveKeeping.start();
+                afterRemotingStart();
 
+                AliveKeeping.start();
+
+                LOGGER.info("=== Easy Grpc Start success, serviceName {} ===", grpcConfig.getServerConfig().getServiceName());
+
+            }
+
+        }catch (Throwable e){
+            LOGGER.info("=== Easy Grpc Start failed, serviceName {} ===", grpcConfig.getServerConfig().getServiceName());
         }
+
+
     }
 
     private void afterRemotingStart() {
@@ -168,6 +184,10 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
         if(CollectionHelper.isNotEmpty(clientConfig)){
             clientConfig.forEach(e -> configContext.putClientConfig(e));
         }
+        String log4jPath = grpcConfig.getLog4jPath();
+        PropertyConfigurator.configure(log4jPath);
+        LoggerFactory.setLoggerAdapter(grpcConfig.getCommonConfig());
+        LOGGER = LoggerFactory.getLogger(AbstractEasyGrpcStarter.class.getName());
 
     }
 }

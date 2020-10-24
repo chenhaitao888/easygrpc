@@ -15,9 +15,9 @@ import java.util.Map;
  */
 public class ServiceProviderInterface {
 
-    private static EasyGprcClassLoader grootClassLoader = new EasyGprcClassLoader();;
+    private static EasyGprcClassLoader easyGprcClassLoader = new EasyGprcClassLoader();;
     private static final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-    private static final String GROOT_DIRECTORY = "META-INF/easygrpc/";
+    private static final String EASYGRPC_DIRECTORY = "META-INF/easygrpc/";
 
     public static <T> T load(final Class<T> clazz, EasyGrpcCommonConfig config) throws Exception {
         SPI spi = clazz.getAnnotation(SPI.class);
@@ -32,13 +32,13 @@ public class ServiceProviderInterface {
     }
     @SuppressWarnings("unchecked")
     public static <T> T loadClass(String clazzName) throws Exception{
-        Class<T> loadClass = (Class<T>) grootClassLoader.loadClass(clazzName);
+        Class<T> loadClass = (Class<T>) easyGprcClassLoader.loadClass(clazzName);
         Constructor<T> constructor = loadClass.getConstructor();
         return (T) constructor.newInstance();
     }
     public static Map<String, Object> getClazzName(final Class<?> clazz) throws Exception {
         EasyGprcClassLoader.setSystemClassLoader(systemClassLoader);
-        Enumeration<URL> configs = grootClassLoader.getResources(GROOT_DIRECTORY + clazz.getName());
+        Enumeration<URL> configs = easyGprcClassLoader.getResources(EASYGRPC_DIRECTORY + clazz.getName());
         Map<String, Object> clazzNameMap = null;
         while (configs.hasMoreElements()) {
             URL url = configs.nextElement();

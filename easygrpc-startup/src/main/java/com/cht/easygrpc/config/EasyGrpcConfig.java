@@ -18,6 +18,8 @@ public class EasyGrpcConfig extends AbstracConfig<EasyGrpcConfig> {
 
     private EasyGrpcCommonConfig commonConfig;
 
+    private String log4jPath;
+
     public List<EasyGrpcClientConfig> getClientConfig() {
         return clientConfig;
     }
@@ -40,5 +42,13 @@ public class EasyGrpcConfig extends AbstracConfig<EasyGrpcConfig> {
 
     public void setCommonConfig(EasyGrpcCommonConfig commonConfig) {
         this.commonConfig = commonConfig;
+    }
+
+    public String getLog4jPath() {
+        return log4jPath;
+    }
+
+    public void setLog4jPath(String log4jPath) {
+        this.log4jPath = log4jPath;
     }
 }
