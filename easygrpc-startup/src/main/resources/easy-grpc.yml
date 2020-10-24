@@ -7,7 +7,7 @@ serverConfig:
   serviceImplPackages: ["com.cht.easygrpc.remoting.iface"]
 
 commonConfig:
-  registryAddress: "172.17.210.89:2181"
+  registryAddress: "192.168.1.6:2181"
   appId: "EasyGrpcTest"
   parameters:
     easygrpc.logger: "slf4j"

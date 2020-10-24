@@ -15,6 +15,7 @@ public class Test {
 
         Container container = EasyGrpcInjector.getInstance(Container.class);
         EasyGrpcTest instance = container.createInstance(EasyGrpcTest.class);
-        instance.hello("ada");
+        String result = instance.hello("ada");
+        System.out.println(result);
     }
 }

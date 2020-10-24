@@ -1,5 +1,7 @@
 package com.cht.easygrpc.support.instance;
 
+import com.cht.easygrpc.EasyGrpcContext;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -12,6 +14,15 @@ public class DefaultContainer extends AbstractContainer{
 
     @Override
     public <T> T createInstance(Class<T> clazz) {
+        return createInstance(clazz, null);
+
+    }
+
+    @Override
+    public <T> T createInstance(Class<T> clazz, EasyGrpcContext context) {
+        if(context != null){
+            stubType.put(clazz, context);
+        }
         synchronized (this.instance) {
             Object o = this.instance.get(clazz);
             if(o == null){

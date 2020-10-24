@@ -70,10 +70,9 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
             initializer();
 
             beforeRemotingStart();
+            initRegistry();
 
             remotingStart();
-
-            initRegistry();
 
             registry();
 
@@ -96,22 +95,27 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
                             throw new EasyGrpcException(e);
                         }
                     }).collect(Collectors.toList());
+
                     JsonClientHelper.add(clientConfig.getClientName(), clazz);
 
                     createInstance(clazz);
 
-                    context.getEasyGrpcChannelManager().initProvider(clientConfig.getClientName(), registry);
+                    initProviderAndChannel(clientConfig.getClientName(), registry);
 
                 } catch (Exception e) {
                     throw new EasyGrpcException("after remoting start failure", e);
                 }
             });
         }
+    }
 
+    private void initProviderAndChannel(String clientName, Registry registry) {
+        context.getEasyGrpcChannelManager().initProvider(clientName, registry);
+        context.getEasyGrpcChannelManager().initChannel(clientName);
     }
 
     private void createInstance(List<Class<?>> clazz) {
-        clazz.forEach(e -> container.createInstance(e));
+        clazz.forEach(e -> container.createInstance(e, context));
     }
 
     private void registry() {

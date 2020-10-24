@@ -5,6 +5,7 @@ import com.cht.easygrpc.EasyGrpcRequest;
 import com.cht.easygrpc.EasyGrpcResponse;
 import com.cht.easygrpc.EasyGrpcServiceGrpc;
 import com.cht.easygrpc.annotation.EasyGrpcService;
+import com.cht.easygrpc.concurrent.NamedThreadFactory;
 import com.cht.easygrpc.domain.ServiceInfo;
 import com.cht.easygrpc.exception.EasyGrpcException;
 import com.cht.easygrpc.exception.NoAvailableWorkThreadException;
@@ -24,6 +25,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
@@ -35,8 +38,11 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
     protected IServiceInitializer initializer;
     protected ServiceInfo serviceInfo;
     protected Map<String, EasyGrpcStub> serviceStubMap = new ConcurrentHashMap<>();
+    protected ExecutorService executorService = Executors.newSingleThreadExecutor(new NamedThreadFactory("easygprc" +
+            "-server-thread", false));
 
     protected AbstractRemotingServer(EasyGrpcContext context) {
+
         super(context);
         this.context = context;
         if(this.initializer == null){
@@ -98,9 +104,16 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
         serverShutdown(server);
     }
 
-    protected void awaitTermination(Server server) throws InterruptedException {
+    protected void awaitTermination(Server server) {
         if(server != null){
-            server.awaitTermination();
+            executorService.submit(() -> {
+                try {
+                    server.awaitTermination();
+                } catch (InterruptedException e) {
+                    //todo log
+                }
+            });
+
         }
     }
 

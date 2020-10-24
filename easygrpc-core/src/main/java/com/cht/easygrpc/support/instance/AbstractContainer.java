@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class AbstractContainer implements Container{
 
-    protected Map<Class<?> , EasyGrpcContext> stubType = new ConcurrentHashMap<>();
+    protected final Map<Class<?> , EasyGrpcContext> stubType = new ConcurrentHashMap<>();
 
 
     protected <T> T genIntance(Class<T> clazz){
@@ -24,5 +24,12 @@ public abstract class AbstractContainer implements Container{
         }
         EasyGrpcStub<T> grpcStub = EasyGrpcStubFactory.createGrpcStub(clazz, context);
         return context.getProxyFactory().getProxy(grpcStub);
+    }
+
+    @Override
+    public <T> void bindContext(Class<T> clazz, EasyGrpcContext context) {
+        if(null == stubType.get(clazz)){
+            stubType.put(clazz, context);
+        }
     }
 }
