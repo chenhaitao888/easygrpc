@@ -24,8 +24,9 @@ public class EasyGrpcServer extends AbstractRemotingServer{
 
     private static final int MAX_MESSAGE_SIZE = 20 * 1024 * 1024; // 接收消息最大20MB
 
-    public EasyGrpcServer(EasyGrpcContext context) {
+    public EasyGrpcServer(EasyGrpcContext context, IServiceInitializer initializer) {
         super(context);
+        this.initializer = initializer;
     }
 
     @Override

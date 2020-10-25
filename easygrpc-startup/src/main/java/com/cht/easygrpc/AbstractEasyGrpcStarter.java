@@ -16,6 +16,7 @@ import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
 import com.cht.easygrpc.remoting.EasyGrpcServer;
 import com.cht.easygrpc.remoting.conf.ConfigContext;
 import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
+import com.cht.easygrpc.remoting.iface.IServiceInitializer;
 import com.cht.easygrpc.runner.RpcRunnerPool;
 import com.cht.easygrpc.spi.ServiceProviderInterface;
 import com.cht.easygrpc.support.AliveKeeping;
@@ -47,6 +48,8 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
     protected AtomicBoolean started = new AtomicBoolean(false);
 
     protected Container container = EasyGrpcInjector.getInstance(Container.class);
+
+    protected IServiceInitializer iServiceInitializer;
 
     public AbstractEasyGrpcStarter() {
         this.context = getContext();
@@ -143,7 +146,7 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
     }
 
     private void remotingStart() {
-        EasyGrpcServer grpcServer = new EasyGrpcServer(context);
+        EasyGrpcServer grpcServer = new EasyGrpcServer(context, iServiceInitializer);
         try {
             grpcServer.start();
         } catch (RemotingException e) {

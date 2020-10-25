@@ -1,6 +1,5 @@
 package com.cht.easygrpc.remoting.iface;
 
-import com.cht.easygrpc.annotation.EasyGrpcService;
 import com.cht.easygrpc.support.EasyGrpcStub;
 import com.cht.easygrpc.support.proxy.ProxyFactory;
 
