@@ -53,13 +53,17 @@ public class EasyGrpcProxProcessor extends AbstractEasyGrpcProcessor implements 
     }
 
     private void handleEasyGprcInjected(Field field, Object bean, Class<?> type) throws IllegalAccessException {
-        Object instance = container.createInstance(field.getType());
-        if(instance == null){
-            logger.debug("{} can not create instance", field.getType());
-            return;
+        try {
+            Object instance = container.createInstance(field.getType());
+            if(instance == null){
+                logger.debug("{} can not create instance", field.getType());
+                return;
+            }
+            field.setAccessible(true);
+            field.set(bean, instance);
+        } finally {
+            field.setAccessible(false);
         }
-        field.setAccessible(true);
-        field.set(bean, instance);
     }
 
 }
