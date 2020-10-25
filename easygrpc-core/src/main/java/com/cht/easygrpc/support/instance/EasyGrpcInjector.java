@@ -1,5 +1,7 @@
 package com.cht.easygrpc.support.instance;
 
+import com.cht.easygrpc.ec.DefaultEventCenter;
+import com.cht.easygrpc.ec.EventCenter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -42,6 +44,7 @@ public class EasyGrpcInjector {
         @Override
         protected void configure() {
             bind(Container.class).to(DefaultContainer.class).in(Singleton.class);
+            bind(EventCenter.class).to(DefaultEventCenter.class).in(Singleton.class);
         }
     }
 }

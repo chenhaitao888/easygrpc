@@ -9,5 +9,6 @@ public interface ExtRpcConfig {
 
     String RPC_PROXY = "rpc.proxy";
 
-    String RPC_CLIENT_STUB = "rpc.client.stub";
+    String INJECT_EVENT = "inject.easygrpc.service";
+
 }

@@ -3,6 +3,8 @@ package com.cht.easygrpc.spring.boot;
 import com.cht.easygrpc.AbstractEasyGrpcStarter;
 import com.cht.easygrpc.EasyGrpcContext;
 import com.cht.easygrpc.config.EasyGrpcConfig;
+import com.cht.easygrpc.constant.ExtRpcConfig;
+import com.cht.easygrpc.ec.EventInfo;
 import com.cht.easygrpc.remoting.iface.IServiceInitializer;
 
 /**
@@ -19,5 +21,10 @@ public class EasyGrpcSpringbootStartup extends AbstractEasyGrpcStarter<EasyGrpcC
     @Override
     protected EasyGrpcConfig loadConfig() {
         return this.grpcConfig;
+    }
+
+    @Override
+    protected void publishEvent() {
+        eventCenter.publishSync(new EventInfo(ExtRpcConfig.INJECT_EVENT));
     }
 }

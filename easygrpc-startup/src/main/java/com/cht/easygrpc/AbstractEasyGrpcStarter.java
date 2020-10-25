@@ -1,6 +1,9 @@
 package com.cht.easygrpc;
 
 import com.cht.easygrpc.config.EasyGrpcConfig;
+import com.cht.easygrpc.constant.ExtRpcConfig;
+import com.cht.easygrpc.ec.EventCenter;
+import com.cht.easygrpc.ec.EventInfo;
 import com.cht.easygrpc.exception.EasyGrpcException;
 import com.cht.easygrpc.exception.RemotingException;
 import com.cht.easygrpc.helper.CollectionHelper;
@@ -49,6 +52,8 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
 
     protected Container container = EasyGrpcInjector.getInstance(Container.class);
 
+    protected EventCenter eventCenter = EasyGrpcInjector.getInstance(EventCenter.class);;
+
     protected IServiceInitializer iServiceInitializer;
 
     public AbstractEasyGrpcStarter() {
@@ -81,6 +86,7 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
                 initializer();
 
                 beforeRemotingStart();
+
                 initRegistry();
 
                 remotingStart();
@@ -88,6 +94,8 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
                 registry();
 
                 afterRemotingStart();
+
+                publishEvent();
 
                 AliveKeeping.start();
 
@@ -102,6 +110,9 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
 
 
     }
+
+    protected abstract void publishEvent();
+
 
     private void afterRemotingStart() {
         List<EasyGrpcClientConfig> clientConfigs = grpcConfig.getClientConfig();
@@ -192,6 +203,5 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
         PropertyConfigurator.configure(log4jPath);
         LoggerFactory.setLoggerAdapter(grpcConfig.getCommonConfig());
         LOGGER = LoggerFactory.getLogger(AbstractEasyGrpcStarter.class.getName());
-
     }
 }

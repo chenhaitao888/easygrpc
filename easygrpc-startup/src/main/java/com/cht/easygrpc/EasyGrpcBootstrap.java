@@ -41,4 +41,9 @@ public class EasyGrpcBootstrap extends AbstractEasyGrpcStarter<EasyGrpcContext>{
         return grpcConfig;
     }
 
+    @Override
+    protected void publishEvent() {
+
+    }
+
 }

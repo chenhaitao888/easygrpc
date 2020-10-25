@@ -67,7 +67,7 @@ public class EasyGrpcServer extends AbstractRemotingServer{
                     try {
                         server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
                     } catch (InterruptedException e) {
-                        // 添加日志 todo
+                        LOGGER.error("shut down error ", e);
                     }
                 }
             }

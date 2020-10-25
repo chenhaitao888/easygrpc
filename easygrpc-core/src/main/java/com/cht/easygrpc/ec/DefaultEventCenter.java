@@ -13,7 +13,6 @@ import java.util.concurrent.Executors;
  */
 public class DefaultEventCenter implements EventCenter {
 
-    private final Logger logger = LoggerFactory.getLogger(DefaultEventCenter.class.getName());
 
     private final ConcurrentHashMap<String, Set<EventSubscriber>> ecMap =
             new ConcurrentHashMap<String, Set<EventSubscriber>>();
@@ -25,7 +24,7 @@ public class DefaultEventCenter implements EventCenter {
         for (String topic : topics) {
             Set<EventSubscriber> subscribers = ecMap.get(topic);
             if (subscribers == null) {
-                subscribers = new ConcurrentHashSet<EventSubscriber>();
+                subscribers = new ConcurrentHashSet<>();
                 Set<EventSubscriber> oldSubscribers = ecMap.putIfAbsent(topic, subscribers);
                 if (oldSubscribers != null) {
                     subscribers = oldSubscribers;
@@ -54,27 +53,22 @@ public class DefaultEventCenter implements EventCenter {
                 try {
                     subscriber.getConsumer().accept(eventInfo);
                 } catch (Throwable e) {
-                    logger.error("publish sync error", e);
                 }
             }
         }
     }
 
     public void publishAsync(final EventInfo eventInfo) {
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                String topic = eventInfo.getTopic();
+        executor.submit(() -> {
+            String topic = eventInfo.getTopic();
 
-                Set<EventSubscriber> subscribers = ecMap.get(topic);
-                if (subscribers != null) {
-                    for (EventSubscriber subscriber : subscribers) {
-                        try {
-                            eventInfo.setTopic(topic);
-                            subscriber.getObserver().onObserved(eventInfo);
-                        } catch (Throwable e) {
-                            logger.error("publish async error", e);
-                        }
+            Set<EventSubscriber> subscribers = ecMap.get(topic);
+            if (subscribers != null) {
+                for (EventSubscriber subscriber : subscribers) {
+                    try {
+                        eventInfo.setTopic(topic);
+                        subscriber.getObserver().onObserved(eventInfo);
+                    } catch (Throwable e) {
                     }
                 }
             }

@@ -13,6 +13,6 @@ public interface EasyGrpcOption {
 
     CallOptions.Key<List<EquivalentAddressGroup>> SELECTED_SUBCHANNELS_KEY = CallOptions.Key.createWithDefault("selectedSubchannelsKey", null);
     CallOptions.Key<String> TAG_KEY = CallOptions.Key.createWithDefault("tagKey", null);
-    CallOptions.Key<String> IFACE_METHOD_KEY = CallOptions.Key.of("ifaceMethodKey", null);
-    CallOptions.Key<Object[]> CALL_PARAMS_KEY = CallOptions.Key.of("callParamsKey", null);
+    CallOptions.Key<String> IFACE_METHOD_KEY = CallOptions.Key.createWithDefault("ifaceMethodKey", null);
+    CallOptions.Key<Object[]> CALL_PARAMS_KEY = CallOptions.Key.createWithDefault("callParamsKey", null);
 }
