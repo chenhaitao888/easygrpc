@@ -10,7 +10,6 @@ import com.cht.easygrpc.remoting.iface.IServiceInitializer;
  */
 public class EasyGrpcSpringbootStartup extends AbstractEasyGrpcStarter<EasyGrpcContext> {
 
-    private EasyGrpcConfig grpcConfig;
 
     public EasyGrpcSpringbootStartup(EasyGrpcConfig grpcConfig, IServiceInitializer initializer) {
         this.grpcConfig = grpcConfig;

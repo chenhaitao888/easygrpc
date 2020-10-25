@@ -44,14 +44,15 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
     protected ExecutorService executorService = Executors.newSingleThreadExecutor(new NamedThreadFactory("easygprc" +
             "-server-thread", false));
 
-    protected AbstractRemotingServer(EasyGrpcContext context) {
+    protected AbstractRemotingServer(EasyGrpcContext context, IServiceInitializer initializer) {
 
         super(context);
         this.context = context;
+        this.initializer = initializer;
         if(this.initializer == null){
             this.initializer = init(context.getServerConfig().getInitializer());
         }
-        initializer.init(context.getServerConfig().getServicePackages(),
+        this.initializer.init(context.getServerConfig().getServicePackages(),
                 context.getServerConfig().getServiceImplPackages(), context.getProxyFactory());
         initIfaces(context.getServerConfig());
 

@@ -35,7 +35,7 @@ public class ServerStarTest {
         RpcRunnerPool rpcRunnerPool = new RpcRunnerPool(context);
         context.setRpcRunnerPool(rpcRunnerPool);
         String[] stringSet = {"com.cht.easygrpc.remoting.iface.EasyGrpcTestImpl"};
-        EasyGrpcServer grpcServer = new EasyGrpcServer(context);
+        EasyGrpcServer grpcServer = new EasyGrpcServer(context, null);
         grpcServer.start();
     }
 }

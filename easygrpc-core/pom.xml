@@ -66,13 +66,19 @@
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-client</artifactId>
             <version>${curator.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>com.google.guava</artifactId>
+                    <groupId>guava</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-test</artifactId>
             <version>${curator.version}</version>
             <scope>test</scope>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -90,6 +96,12 @@
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
             <version>${injector.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
