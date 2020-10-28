@@ -5,6 +5,7 @@ import com.cht.easygrpc.constant.EasyGrpcLS;
 import com.cht.easygrpc.discovery.EasyGrpcNameResolverProvider;
 import com.cht.easygrpc.enums.EventStatus;
 import com.cht.easygrpc.exception.RegistryException;
+import com.cht.easygrpc.helper.CollectionHelper;
 import com.cht.easygrpc.helper.EventHelper;
 import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
 import org.apache.curator.RetryPolicy;
@@ -319,6 +320,10 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
     public List<Map<String, Object>> assembleServers(EasyGrpcServiceNode.Data serverData) {
         List<Map<String, Object>> servers = new ArrayList<>();
         List<String> address = serverData.getAddress();
+        LOGGER.info("{} service 's addresses: {}", serverData.getServiceName(), address);
+        if(CollectionHelper.isEmpty(address)){
+            return servers;
+        }
         address.forEach(e -> {
             String[] split = e.split(":");
             Map<String, Object> stringObjectMap = serverData.buildMap(split[0], Integer.parseInt(split[1]));

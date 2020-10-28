@@ -1,12 +1,17 @@
 package com.cht.easygrpc.registry;
 
 import com.cht.easygrpc.EasyGrpcContext;
+import com.cht.easygrpc.logger.Logger;
+import com.cht.easygrpc.logger.LoggerFactory;
+import com.cht.easygrpc.remoting.AbstractRemoting;
 
 /**
  * @author : chenhaitao934
  * @date : 12:51 上午 2020/10/12
  */
 public abstract class AbstractRegistry implements Registry{
+
+    protected final static Logger LOGGER = LoggerFactory.getLogger(AbstractRegistry.class.getName());
 
     protected EasyGrpcContext context;
 
