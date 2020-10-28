@@ -21,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @date : 4:20 下午 2020/10/10
  */
 public class EasyGrpcNameResolverProvider extends NameResolverProvider {
-    private List<Map<String, Object>> initAddress = new ArrayList<>();
+    private List<Map<String, Object>> initAddress;
     private List<EquivalentAddressGroup> equivalentAddressGroups;
     private int lbStrategy;
     private EasyGrpcNameResolver nameResolver = new EasyGrpcNameResolver();

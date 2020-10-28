@@ -188,6 +188,9 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
             if(!leaderSelector.hasLeadership()){
                 return;
             }
+            if(!EventHelper.modifyEvent(event)){
+                return;
+            }
             EasyGrpcServiceNode serviceNode = new EasyGrpcServiceNode(event.getData());
             EasyGrpcServiceNode.Data data = serviceNode.getData();
             EasyGrpcServiceNode node = new EasyGrpcServiceNode(getData(serverNodePath));

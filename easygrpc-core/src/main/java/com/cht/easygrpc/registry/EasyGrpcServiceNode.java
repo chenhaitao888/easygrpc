@@ -38,7 +38,11 @@ public class EasyGrpcServiceNode extends AbstractGenericNode<EasyGrpcServiceNode
         private String tag;
         private String serviceName;
 
+        public Data(String serviceName) {
+            this.serviceName = serviceName;
+        }
         public Data() {
+
         }
 
         public Data(String ip, int port, String nodeType) {

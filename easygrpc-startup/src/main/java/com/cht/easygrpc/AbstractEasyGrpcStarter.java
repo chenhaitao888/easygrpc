@@ -99,12 +99,13 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
 
                 AliveKeeping.start();
 
-                LOGGER.info("=== Easy Grpc Start success, serviceName {} ===", grpcConfig.getServerConfig().getServiceName());
+                LOGGER.info("=== Easy Grpc Start success, serviceName: {} ===",
+                        grpcConfig.getServerConfig().getServiceName());
 
             }
 
         }catch (Throwable e){
-            LOGGER.info("=== Easy Grpc Start failed, serviceName {} ===",
+            LOGGER.info("=== Easy Grpc Start failed, serviceName: {} ===",
                     grpcConfig.getServerConfig().getServiceName(), e);
         }
 

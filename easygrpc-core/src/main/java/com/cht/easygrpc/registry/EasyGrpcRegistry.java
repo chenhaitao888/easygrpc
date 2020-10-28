@@ -28,7 +28,7 @@ public class EasyGrpcRegistry extends ZookeeperRegistry {
     @Override
     protected void doRegister() {
         if(!checkExists(getServerPath())){
-            EasyGrpcServiceNode.Data data = new EasyGrpcServiceNode.Data();
+            EasyGrpcServiceNode.Data data = new EasyGrpcServiceNode.Data(context.getServerConfig().getServiceName());
             this.serverNodePath = createNodeData(getServerPath(), false, false, JsonHelper.toBytes(data));
         }else {
             this.serverNodePath = getServerPath();
