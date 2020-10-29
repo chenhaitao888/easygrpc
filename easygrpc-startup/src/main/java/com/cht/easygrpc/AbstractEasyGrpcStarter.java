@@ -201,7 +201,9 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
             clientConfig.forEach(e -> configContext.putClientConfig(e));
         }
         String log4jPath = grpcConfig.getLog4jPath();
-        PropertyConfigurator.configure(log4jPath);
+        if(log4jPath != null){
+            PropertyConfigurator.configure(log4jPath);
+        }
         LoggerFactory.setLoggerAdapter(grpcConfig.getCommonConfig());
         LOGGER = LoggerFactory.getLogger(AbstractEasyGrpcStarter.class.getName());
     }
