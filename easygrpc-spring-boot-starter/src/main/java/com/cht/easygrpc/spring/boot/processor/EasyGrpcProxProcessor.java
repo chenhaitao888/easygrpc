@@ -17,7 +17,6 @@ import static com.cht.easygrpc.constant.ExtRpcConfig.INJECT_EVENT;
 /**
  * @author : chenhaitao934
  */
-@Component
 public class EasyGrpcProxProcessor extends AbstractEasyGrpcProcessor implements PriorityOrdered {
 
     private EventCenter eventCenter = EasyGrpcInjector.getInstance(EventCenter.class);
