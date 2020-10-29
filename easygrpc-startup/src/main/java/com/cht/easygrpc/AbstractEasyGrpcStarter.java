@@ -99,14 +99,14 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
 
                 AliveKeeping.start();
 
-                LOGGER.info("=== Easy Grpc Start success, serviceName: {} ===",
-                        grpcConfig.getServerConfig().getServiceName());
+                LOGGER.info("=== Easy Grpc Start success, appId: {} ===",
+                        grpcConfig.getCommonConfig().getAppId());
 
             }
 
         }catch (Throwable e){
-            LOGGER.info("=== Easy Grpc Start failed, serviceName: {} ===",
-                    grpcConfig.getServerConfig().getServiceName(), e);
+            LOGGER.info("=== Easy Grpc Start failed, appId: {} ===",
+                    grpcConfig.getCommonConfig().getAppId(), e);
         }
 
 
@@ -192,7 +192,9 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
     private void initConfig() {
         ConfigContext configContext = new ConfigContext();
         List<EasyGrpcClientConfig> clientConfig = grpcConfig.getClientConfig();
-        grpcConfig.getServerConfig().setIp(NetHelper.getLocalHost());
+        if(null != grpcConfig.getServerConfig()){
+            grpcConfig.getServerConfig().setIp(NetHelper.getLocalHost());
+        }
         context.setServerConfig(grpcConfig.getServerConfig());
         context.setClientConfigs(clientConfig);
         context.setCommonConfig(grpcConfig.getCommonConfig());

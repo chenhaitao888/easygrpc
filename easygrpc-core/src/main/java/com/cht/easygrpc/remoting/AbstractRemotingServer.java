@@ -61,16 +61,15 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
     }
 
     private void genServiceStubs(List<Class<?>> interfaces) {
-        if (!CollectionHelper.isNotEmpty(interfaces)) {
-            throw new EasyGrpcException("interfaces is empty.");
+        if (CollectionHelper.isNotEmpty(interfaces)) {
+            interfaces.forEach(iface -> {
+                EasyGrpcStub easyGrpcStub = genServiceStub(iface,
+                        EasyGrpcService.class);
+                if(null != easyGrpcStub){
+                    serviceStubMap.put(iface.getName(), easyGrpcStub);
+                }
+            });
         }
-        interfaces.forEach(iface -> {
-            EasyGrpcStub easyGrpcStub = genServiceStub(iface,
-                    EasyGrpcService.class);
-            if(null != easyGrpcStub){
-                serviceStubMap.put(iface.getName(), easyGrpcStub);
-            }
-        });
     }
 
     private EasyGrpcStub genServiceStub(Class<?> iface, Class<? extends Annotation> annotation) {
