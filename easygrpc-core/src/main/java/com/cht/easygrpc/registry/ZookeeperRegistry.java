@@ -169,6 +169,16 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
         }
     }
 
+    @Override
+    public ChildData getServiceData(String serviceName) {
+        String servicePath = getServerPath(serviceName);
+        try {
+            return new ChildData(servicePath, EMPTY_STAT, client.getData().forPath(servicePath));
+        } catch (Exception e) {
+            throw new RegistryException("get data from failure", e);
+        }
+    }
+
     protected Stat setData(String path, byte[] data) {
         try {
             return getClient().setData().forPath(path, data);

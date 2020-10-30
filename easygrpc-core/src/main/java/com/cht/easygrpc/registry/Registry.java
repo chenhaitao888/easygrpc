@@ -16,4 +16,6 @@ public interface Registry {
     List<Map<String, Object>> assembleServers(EasyGrpcServiceNode.Data serverData);
 
     ChildData getServerData();
+
+    ChildData getServiceData(String serviceName);
 }

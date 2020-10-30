@@ -38,6 +38,10 @@ public abstract class AbstractRegistry implements Registry{
         return basePath() + "/server/nodes";
     }
 
+    protected String getServerPath(String serviceName){
+        return ROOT_PATH + "/" + serviceName + "/server/nodes";
+    }
+
     protected String getConsumePath(){
         return basePath() + "/consume";
     }

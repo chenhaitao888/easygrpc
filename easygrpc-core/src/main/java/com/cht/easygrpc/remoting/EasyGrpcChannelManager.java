@@ -45,7 +45,7 @@ public class EasyGrpcChannelManager {
 
     public void initProvider(String serviceName, Registry grpcRegistry) {
         checkArgument(serviceName != null, "serviceName is null");
-        EasyGrpcServiceNode node = new EasyGrpcServiceNode(grpcRegistry.getServerData());
+        EasyGrpcServiceNode node = new EasyGrpcServiceNode(grpcRegistry.getServiceData(serviceName));
         EasyGrpcServiceNode.Data serverData = node.getData();
         List<Map<String, Object>> servers = grpcRegistry.assembleServers(serverData);
         EasyGrpcNameResolverProvider resolverProvider = providerConcurrentHashMap.get(serviceName);
