@@ -1,11 +1,12 @@
 package com.cht.easygrpc.support;
 
 import com.cht.easygrpc.exception.EasyGrpcException;
+import com.cht.easygrpc.support.stub.EasyGrpcStub;
 
 /**
  * @author : chenhaitao934
  */
-public class WrapGrpcStub<T> implements EasyGrpcStub<T>{
+public class WrapGrpcStub<T> implements EasyGrpcStub<T> {
     private EasyGrpcStub<T> invoker;
 
     public WrapGrpcStub(EasyGrpcStub<T> invoker) {

@@ -91,6 +91,23 @@ public class EasyRpcParseHelper {
         }
     }
 
+    public static <T> T parseResult(String resultJson, String uniqueName, Type returnType) {
+        if (resultJson == null) {
+            return null;
+        }
+
+        if (returnType == void.class || returnType == Void.class || returnType == null) {
+            return null;
+        }
+
+        try {
+            JavaType javaType = returnTypeMap.computeIfAbsent(uniqueName, (k) -> JacksonHelper.genJavaType(returnType));
+            return JacksonHelper.getMapper().readValue(resultJson, javaType);
+        } catch (IOException e) {
+            throw new EasyGrpcException("Fail to Parse Result!", e);
+        }
+    }
+
     public static <T> T parseResult(String resultJson, String iface, String method, Type returnType) {
         if (resultJson == null) {
             return null;

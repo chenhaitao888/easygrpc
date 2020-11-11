@@ -1,7 +1,7 @@
 package com.cht.easygrpc.support.proxy;
 
 import com.cht.easygrpc.exception.EasyGrpcException;
-import com.cht.easygrpc.support.EasyGrpcStub;
+import com.cht.easygrpc.support.stub.EasyGrpcStub;
 
 import java.util.HashSet;
 import java.util.Set;

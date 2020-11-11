@@ -13,6 +13,7 @@ public class EasyGrpcInvocation implements Invocation{
 
     private String methodName;
     private String ifaceName;
+    private String serviceName;
     private transient Class<?>[] parameterTypes;
 
     private transient Class<?> returnType;
@@ -20,6 +21,12 @@ public class EasyGrpcInvocation implements Invocation{
     private Method method;
 
     private Object[] arguments;
+
+    private String reqId;
+
+    private String rpcId;
+
+
 
     public EasyGrpcInvocation(Method method, String serviceName, Object[] arguments){
         this(method.getName(), serviceName, arguments);
@@ -31,6 +38,12 @@ public class EasyGrpcInvocation implements Invocation{
         this.returnType = method.getReturnType();
         this.method = method;
         this.arguments = getArgs(method, args);
+    }
+
+    public EasyGrpcInvocation(Method method, Object[] arguments){
+        this.returnType = method.getReturnType();
+        this.method = method;
+        this.arguments = arguments;
     }
 
     public EasyGrpcInvocation(String methodName, String ifaceName, Object[] arguments) {
@@ -67,6 +80,41 @@ public class EasyGrpcInvocation implements Invocation{
     @Override
     public Method getMethod() {
         return method;
+    }
+
+    @Override
+    public String getIfaceMethodKey() {
+        return ifaceName + "." + methodName;
+    }
+
+    @Override
+    public String getRpcId() {
+        return rpcId;
+    }
+
+    @Override
+    public String getReqId() {
+        return reqId;
+    }
+
+    @Override
+    public void setRpcId(String rpcId) {
+        this.rpcId = rpcId;
+    }
+
+    @Override
+    public void setReqId(String reqId) {
+        this.reqId = reqId;
+    }
+
+    @Override
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    @Override
+    public String getUniqueName() {
+        return this.serviceName + "_" + this.ifaceName + "_" + this.methodName;
     }
 
     public void setParameterTypes(Class<?>[] parameterTypes) {

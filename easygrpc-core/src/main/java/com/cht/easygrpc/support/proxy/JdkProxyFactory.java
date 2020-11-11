@@ -2,10 +2,9 @@ package com.cht.easygrpc.support.proxy;
 
 import com.cht.easygrpc.exception.EasyGrpcException;
 import com.cht.easygrpc.support.*;
-import io.grpc.ManagedChannel;
-import io.grpc.stub.AbstractStub;
+import com.cht.easygrpc.support.stub.AbstractGrpcProxyStub;
+import com.cht.easygrpc.support.stub.EasyGrpcStub;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 

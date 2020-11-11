@@ -3,7 +3,7 @@ package com.cht.easygrpc.support.proxy;
 import com.cht.easygrpc.constant.ExtRpcConfig;
 import com.cht.easygrpc.exception.EasyGrpcException;
 import com.cht.easygrpc.spi.SPI;
-import com.cht.easygrpc.support.EasyGrpcStub;
+import com.cht.easygrpc.support.stub.EasyGrpcStub;
 
 /**
  * @author : chenhaitao934

@@ -6,8 +6,7 @@ import com.cht.easygrpc.EasyGrpcResponse;
 import com.cht.easygrpc.concurrent.CustomizeThreadPollExecutor;
 import com.cht.easygrpc.domain.ServiceInfo;
 import com.cht.easygrpc.exception.NoAvailableWorkThreadException;
-import com.cht.easygrpc.remoting.iface.IServiceInitializer;
-import com.cht.easygrpc.support.EasyGrpcStub;
+import com.cht.easygrpc.support.stub.EasyGrpcStub;
 import io.grpc.stub.StreamObserver;
 
 import java.util.Map;
@@ -35,7 +34,7 @@ public class RpcRunnerPool {
     }
 
     public void execute(EasyGrpcRequest request, StreamObserver<EasyGrpcResponse> responseObserver,
-                         ServiceInfo serviceInfo, Map<String, EasyGrpcStub> serviceStubMap) throws NoAvailableWorkThreadException {
+                        ServiceInfo serviceInfo, Map<String, EasyGrpcStub> serviceStubMap) throws NoAvailableWorkThreadException {
         try {
             threadPoolExecutor.execute(new EasyGrpcRunnable(request, responseObserver, context,
                     serviceInfo, serviceStubMap));

@@ -1,9 +1,8 @@
 package com.cht.easygrpc.spring.boot;
 
-import com.cht.easygrpc.exception.EasyGrpcException;
 import com.cht.easygrpc.remoting.iface.IServiceInitializer;
 import com.cht.easygrpc.spring.boot.annotation.EasyGrpcSpringService;
-import com.cht.easygrpc.support.EasyGrpcStub;
+import com.cht.easygrpc.support.stub.EasyGrpcStub;
 import com.cht.easygrpc.support.proxy.ProxyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package com.cht.easygrpc.support;
+package com.cht.easygrpc.support.stub;
 
 import com.cht.easygrpc.EasyGrpcContext;
 import com.cht.easygrpc.EasyGrpcRequest;
@@ -13,6 +13,7 @@ import com.cht.easygrpc.remoting.AbstractRemoting;
 import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
 import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
 import com.cht.easygrpc.remoting.conf.EasyGrpcMethodConfig;
+import com.cht.easygrpc.support.Invocation;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.AbstractStub;
 
@@ -29,7 +30,7 @@ import static com.cht.easygrpc.enums.EasyGrpcResultStatus.*;
 /**
  * @author : chenhaitao934
  */
-public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements EasyGrpcStub<T>{
+public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements EasyGrpcStub<T> {
 
     private final Class<T> ifaces;
 
@@ -63,8 +64,8 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
     }
 
     @Override
-    public T call(Invocation invocation) throws EasyGrpcException {
-        initId();
+    public Object call(Invocation invocation) throws EasyGrpcException {
+        initIdAndServiceName(invocation);
         int resultCode = 0;
         try {
             return doCall(invocation);
@@ -100,15 +101,18 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
         // todo
     }
 
-    private void initId() {
+    private void initIdAndServiceName(Invocation invocation) {
         if (!context.getConfigContext().isServer()) {
             baseParameter.put("reqId", UUID.randomUUID().toString().replaceAll("-", ""));
             baseParameter.put("rpcId", UUID.randomUUID().toString().replaceAll("-", ""));
+            invocation.setReqId(baseParameter.get("reqId"));
+            invocation.setRpcId(baseParameter.get("rpcId"));
+            invocation.setServiceName(getServiceName(invocation.getIfaceName()));
             atomicBoolean.set(true);
         }
     }
 
-    protected abstract T doCall(Invocation invocation) throws Exception;
+    protected abstract Object doCall(Invocation invocation) throws Exception;
 
     protected abstract AbstractStub createEasyGrpcServiceStub(ManagedChannel manageChannel, Invocation invocation, long timeout);
 
@@ -156,7 +160,7 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
     }
 
     protected Future<EasyGrpcResponse> submit(EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub serviceStub, EasyGrpcRequest request){
-        Future<EasyGrpcResponse> responseFuture = threadPoolExecutor.submit((Callable<EasyGrpcResponse>) () -> {
+        Future<EasyGrpcResponse> responseFuture = threadPoolExecutor.submit(() -> {
             try {
                 return serviceStub.call(request);
             } finally {
@@ -175,6 +179,18 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
         }
     }
 
+    class AsynStubBuilder extends AbstractStubBuilder<EasyGrpcServiceGrpc.EasyGrpcServiceStub> {
 
+        public AsynStubBuilder(Invocation invocation, long timeout, ManagedChannel manageChannel) {
+            super(EasyGrpcServiceGrpc::newStub, invocation, timeout, manageChannel);
+        }
+    }
+
+    class BlockingStubBuilder extends AbstractStubBuilder<EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub> {
+
+        public BlockingStubBuilder(Invocation invocation, long timeout, ManagedChannel manageChannel) {
+            super(EasyGrpcServiceGrpc::newBlockingStub, invocation, timeout, manageChannel);
+        }
+    }
 
 }

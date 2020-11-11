@@ -1,17 +1,14 @@
 package com.cht.easygrpc.remoting.iface;
 
-import com.cht.easygrpc.exception.EasyGrpcException;
 import com.cht.easygrpc.helper.CollectionHelper;
 import com.cht.easygrpc.support.ClassScanner;
-import com.cht.easygrpc.support.EasyGrpcStub;
+import com.cht.easygrpc.support.stub.EasyGrpcStub;
 import com.cht.easygrpc.support.proxy.ProxyFactory;
 
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author : chenhaitao934

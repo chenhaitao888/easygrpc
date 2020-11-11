@@ -1,14 +1,14 @@
-package com.cht.easygrpc.support;
+package com.cht.easygrpc.support.stub;
 
 import com.cht.easygrpc.exception.EasyGrpcException;
+import com.cht.easygrpc.support.Invocation;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
  * @author : chenhaitao934
  */
-public abstract class AbstractGrpcProxyStub<T> implements EasyGrpcStub<T>{
+public abstract class AbstractGrpcProxyStub<T> implements EasyGrpcStub<T> {
 
     private final T proxy;
     private final Class<T> type;

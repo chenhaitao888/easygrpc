@@ -1,22 +1,21 @@
-package com.cht.easygrpc.support;
+package com.cht.easygrpc.support.stub;
 
 import com.cht.easygrpc.EasyGrpcContext;
 import com.cht.easygrpc.EasyGrpcRequest;
 import com.cht.easygrpc.EasyGrpcResponse;
 import com.cht.easygrpc.EasyGrpcServiceGrpc;
 import com.cht.easygrpc.helper.GrpcParseHelper;
+import com.cht.easygrpc.support.Invocation;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.AbstractStub;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import static com.cht.easygrpc.constant.EasyGrpcOption.*;
-
 /**
  * @author : chenhaitao934
  */
-public class EasyGrpcBlockStub<T> extends AbstractGrpcStub<T>{
+public class EasyGrpcBlockStub<T> extends AbstractGrpcStub<T> {
 
 
     public EasyGrpcBlockStub(Class<T> type, EasyGrpcContext context) {
@@ -46,11 +45,14 @@ public class EasyGrpcBlockStub<T> extends AbstractGrpcStub<T>{
 
     @Override
     protected AbstractStub createEasyGrpcServiceStub(ManagedChannel manageChannel, Invocation invocation, long timeout) {
-        EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub blockingStub = EasyGrpcServiceGrpc.newBlockingStub(manageChannel)
+        /*EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub blockingStub = EasyGrpcServiceGrpc.newBlockingStub(manageChannel)
                 .withDeadlineAfter(timeout, TimeUnit.MILLISECONDS)
                 .withOption(IFACE_METHOD_KEY, getIfaceMethodKey(invocation.getIfaceName(), invocation.getMethodName()))
                 .withOption(CALL_PARAMS_KEY, invocation.getArguments() == null ? new Object[]{} :
                         invocation.getArguments());
+        return blockingStub;*/
+        EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub blockingStub = new BlockingStubBuilder(invocation, timeout, manageChannel)
+                                                                           .buildStub();
         return blockingStub;
     }
 }

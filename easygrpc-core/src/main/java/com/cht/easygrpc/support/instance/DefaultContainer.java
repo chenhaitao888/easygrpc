@@ -20,13 +20,30 @@ public class DefaultContainer extends AbstractContainer{
 
     @Override
     public <T> T createInstance(Class<T> clazz, EasyGrpcContext context) {
-        if(context != null){
-            stubType.put(clazz, context);
-        }
+        bindContext(clazz, context);
+
         synchronized (this.instance) {
             Object o = this.instance.get(clazz);
             if(o == null){
                 instance.put(clazz, genIntance(clazz));
+            }
+        }
+        return (T) instance.get(clazz);
+    }
+
+    @Override
+    public <T> T createStreamInstance(Class<T> clazz) {
+        return createStreamInstance(clazz, null);
+    }
+
+    @Override
+    public <T> T createStreamInstance(Class<T> clazz, EasyGrpcContext context) {
+        bindContext(clazz, context);
+
+        synchronized (this.instance) {
+            Object o = this.instance.get(clazz);
+            if(o == null){
+                instance.put(clazz, genStreamInstance(clazz));
             }
         }
         return (T) instance.get(clazz);

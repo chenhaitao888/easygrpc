@@ -1,6 +1,6 @@
 package com.cht.easygrpc.remoting.iface;
 
-import com.cht.easygrpc.support.EasyGrpcStub;
+import com.cht.easygrpc.support.stub.EasyGrpcStub;
 import com.cht.easygrpc.support.proxy.ProxyFactory;
 
 import java.lang.annotation.Annotation;
