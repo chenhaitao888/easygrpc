@@ -25,6 +25,7 @@ public class AbstractEasyGrpcProcessor implements BeanPostProcessor, Application
 
     protected Container container = EasyGrpcInjector.getInstance(Container.class);
 
+
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;

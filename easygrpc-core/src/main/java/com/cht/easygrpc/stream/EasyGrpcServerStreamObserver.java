@@ -1,6 +1,5 @@
 package com.cht.easygrpc.stream;
 
-import com.cht.easygrpc.EasyGrpcRequest;
 import com.cht.easygrpc.EasyGrpcResponse;
 import com.cht.easygrpc.enums.EasyGrpcResultStatus;
 import com.cht.easygrpc.runner.AbstractEasyGrpcRun;
