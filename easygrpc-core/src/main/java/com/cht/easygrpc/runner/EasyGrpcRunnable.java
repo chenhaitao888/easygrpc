@@ -7,7 +7,7 @@ import com.cht.easygrpc.domain.MethodInfo;
 import com.cht.easygrpc.domain.ServiceInfo;
 import com.cht.easygrpc.enums.EasyGrpcResultStatus;
 import com.cht.easygrpc.exception.ServiceException;
-import com.cht.easygrpc.helper.EasyRpcParseHelper;
+import com.cht.easygrpc.helper.GrpcParseHelper;
 import com.cht.easygrpc.helper.StringHelper;
 import com.cht.easygrpc.support.EasyGrpcInvocation;
 import com.cht.easygrpc.support.stub.EasyGrpcStub;
@@ -42,7 +42,7 @@ public class EasyGrpcRunnable extends AbstractEasyGrpcRun implements Runnable{
         EasyGrpcResponse response;
         try {
             methodInfo = getMethodInfo(request.getIface(), request.getMethod());
-            Map<String, Object> args = EasyRpcParseHelper.parseArgs(request.getRequestJson(), methodInfo);
+            Map<String, Object> args = GrpcParseHelper.parseArgs(request.getRequestJson(), methodInfo);
 
             EasyGrpcInvocation invocation = new EasyGrpcInvocation(methodInfo.getMethod(), args);
 

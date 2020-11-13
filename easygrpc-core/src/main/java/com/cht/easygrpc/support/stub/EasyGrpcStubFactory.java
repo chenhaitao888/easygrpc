@@ -16,7 +16,11 @@ public class EasyGrpcStubFactory {
         }
         if(stubType == GrpcStubType.BLOCK.getCode()){
             return new EasyGrpcBlockStub<>(type, context);
-        }else {
+        }
+        if(stubType == GrpcStubType.STREAM.getCode()){
+            return new EasyGrpcStreamStub<>(type, context);
+        }
+        else {
             throw new EasyGrpcException(stubType + " not match easy grpc stub");
         }
     }

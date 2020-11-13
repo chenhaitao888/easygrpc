@@ -2,7 +2,7 @@ package com.cht.easygrpc.stream;
 
 
 import com.cht.easygrpc.EasyGrpcResponse;
-import com.cht.easygrpc.helper.EasyRpcParseHelper;
+import com.cht.easygrpc.helper.GrpcParseHelper;
 import com.cht.easygrpc.support.Invocation;
 import io.grpc.stub.StreamObserver;
 
@@ -26,7 +26,7 @@ public class ClientStreamWrapObserver implements StreamObserver<EasyGrpcResponse
     public void onNext(EasyGrpcResponse value) {
         String uniqueName = invocation.getUniqueName();
         Type type = observerDecorate.getReturnType();
-        observerDecorate.onNext(EasyRpcParseHelper.parseResult(value.getResultJson(), uniqueName, type));
+        observerDecorate.onNext(GrpcParseHelper.parseResult(value.getResultJson(), uniqueName, type));
     }
 
     @Override

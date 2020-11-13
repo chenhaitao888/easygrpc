@@ -28,6 +28,9 @@ public abstract class AbstractContainer implements Container{
     @Override
     public <T> void bindContext(Class<T> clazz, EasyGrpcContext context) {
         if(null == stubType.get(clazz)){
+            if(context == null){
+                throw new EasyGrpcException(clazz.getSimpleName() + "'s context == null");
+            }
             stubType.put(clazz, context);
         }
     }

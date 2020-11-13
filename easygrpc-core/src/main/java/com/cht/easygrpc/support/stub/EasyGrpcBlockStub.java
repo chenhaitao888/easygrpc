@@ -37,8 +37,7 @@ public class EasyGrpcBlockStub<T> extends AbstractGrpcStub<T> {
         EasyGrpcResponse easyGrpcResponse = responseFuture.get(timeout, TimeUnit.MILLISECONDS);
         checkResponseCode(easyGrpcResponse);
 
-        T result = GrpcParseHelper.parseResult(easyGrpcResponse.getResultJson(), getServiceName(invocation.getIfaceName()),
-                invocation.getMethod());
+        T result = GrpcParseHelper.parseResult(easyGrpcResponse.getResultJson(), invocation);
         logForResponse(invocation.getMethod(), result);
         return result;
     }

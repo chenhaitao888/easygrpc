@@ -3,6 +3,7 @@ package com.cht.easygrpc.helper;
 import com.cht.easygrpc.domain.MethodInfo;
 import com.cht.easygrpc.domain.ParamInfo;
 import com.cht.easygrpc.exception.EasyGrpcException;
+import com.cht.easygrpc.support.Invocation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
@@ -122,5 +123,29 @@ public class GrpcParseHelper {
         } catch (IOException e) {
             throw new EasyGrpcException("parse result failure", e);
         }
+    }
+
+    public static <T> T parseResult(String resultJson, String uniqueName, Type returnType) {
+        if (resultJson == null) {
+            return null;
+        }
+
+        if (returnType == void.class || returnType == Void.class || returnType == null) {
+            return null;
+        }
+
+        try {
+            JavaType javaType = returnTypeMap.computeIfAbsent(uniqueName, (k) -> JacksonHelper.genJavaType(returnType));
+            return JacksonHelper.getMapper().readValue(resultJson, javaType);
+        } catch (IOException e) {
+            throw new EasyGrpcException("Fail to Parse Result!", e);
+        }
+    }
+
+    public static <T> T parseResult(String resultJson, Invocation invocation) {
+        if (resultJson == null) {
+            return null;
+        }
+        return parseResult(resultJson, invocation.getUniqueName(), invocation.getReturnType());
     }
 }
