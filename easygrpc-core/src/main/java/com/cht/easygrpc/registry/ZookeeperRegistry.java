@@ -4,13 +4,16 @@ import com.cht.easygrpc.EasyGrpcContext;
 import com.cht.easygrpc.constant.EasyGrpcLS;
 import com.cht.easygrpc.discovery.EasyGrpcNameResolverProvider;
 import com.cht.easygrpc.enums.EventStatus;
+import com.cht.easygrpc.exception.EasyGrpcException;
 import com.cht.easygrpc.exception.RegistryException;
 import com.cht.easygrpc.helper.CollectionHelper;
 import com.cht.easygrpc.helper.EventHelper;
+import com.cht.easygrpc.helper.PathHelper;
 import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
@@ -28,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static org.apache.curator.framework.recipes.cache.PathChildrenCache.StartMode.POST_INITIALIZED_EVENT;
 
@@ -154,6 +158,10 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
 
     protected ChildData getData(String path) {
         try {
+            Stat stat = client.checkExists().forPath(path);
+            if(stat == null){
+                return null;
+            }
             return new ChildData(path, EMPTY_STAT, client.getData().forPath(path));
         } catch (Exception e) {
             throw new RegistryException("get data from failure", e);
@@ -173,6 +181,10 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
     public ChildData getServiceData(String serviceName) {
         String servicePath = getServerPath(serviceName);
         try {
+            Stat stat = client.checkExists().forPath(servicePath);
+            if(stat == null){
+                return new ChildData(servicePath, EMPTY_STAT, null);
+            }
             return new ChildData(servicePath, EMPTY_STAT, client.getData().forPath(servicePath));
         } catch (Exception e) {
             throw new RegistryException("get data from failure", e);
@@ -222,29 +234,23 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
                                       EventStatus status) {
             String ip = data.getIp();
             int port = data.getPort();
-            String serviceName = serverData.getServiceName();
 
             switch (status) {
                 case ADD:
-                    serverData.addAdress(ip + ":" + port);
+                    String suriveAddress = ip + ":" + port;
+                    List<String> address = serverData.getAddress();
+                    if(CollectionHelper.isNotEmpty(address) && address.contains(suriveAddress)){
+                        return;
+                    }
+                    serverData.addAdress(suriveAddress);
+                    refreshServerNode(serverData);
                     break;
                 case REMOVE:
                     serverData.removeAdress(ip + ":" + port);
+                    refreshServerNode(serverData);
                     break;
             }
-            updateServerNode(serverNodePath, serverData);
-            EasyGrpcChannelManager channelManager = context.getEasyGrpcChannelManager();
-            int lbStrategy = context.getCommonConfig().getLbStrategy() == 0 ? EasyGrpcLS.RANDOM : context.getCommonConfig().getLbStrategy();
-            List<Map<String, Object>> servers = assembleServers(serverData);
-            EasyGrpcNameResolverProvider resolverProvider = channelManager.getResolverProvider(serviceName);
-            if(resolverProvider == null){
-                resolverProvider = new EasyGrpcNameResolverProvider(servers, lbStrategy);
-                channelManager.putResolverProvider(serviceName, resolverProvider);
-            }
-            resolverProvider.refreshServerList(lbStrategy, servers);
         }
-
-
     }
 
     private void updateServerNode(String serverNodePath, EasyGrpcServiceNode.Data serverData) {
@@ -256,10 +262,22 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
 
         @Override
         public void acquireLeadership() throws Exception {
+            checkUnavailableNodes();
             EasyGrpcServiceNode node = new EasyGrpcServiceNode(getData(suriveNodePath));
             node.getData().setNodeState("Master");
-            serverCache.start(POST_INITIALIZED_EVENT);
             updateServerNode(suriveNodePath, node.getData());
+            serverCache.start();
+        }
+
+        private void checkUnavailableNodes() {
+            List<String> serviceNodes = getAllServiceNodes();
+            EasyGrpcServiceNode node = new EasyGrpcServiceNode(getData(serverNodePath));
+            EasyGrpcServiceNode.Data data = node.getData();
+            if(CollectionHelper.isNotEmpty(serviceNodes)){
+                data.setAddress(null);
+                serviceNodes.forEach(e -> data.addAdress(e));
+            }
+            refreshServerNode(data);
         }
 
         @Override
@@ -269,9 +287,39 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
                     serverCache.close();
                 }
             } catch (Exception e) {
-                // todo log
+                LOGGER.warn("server cache close failed.", e);
             }
         }
+    }
+
+    private void refreshServerNode(EasyGrpcServiceNode.Data data) {
+        updateServerNode(serverNodePath, data);
+        EasyGrpcChannelManager channelManager = context.getEasyGrpcChannelManager();
+        int lbStrategy = context.getCommonConfig().getLbStrategy() == 0 ? EasyGrpcLS.RANDOM : context.getCommonConfig().getLbStrategy();
+        List<Map<String, Object>> servers = assembleServers(data);
+        EasyGrpcNameResolverProvider resolverProvider = channelManager.getResolverProvider(data.getServiceName());
+        if(resolverProvider == null){
+            resolverProvider = new EasyGrpcNameResolverProvider(servers, lbStrategy);
+            channelManager.putResolverProvider(data.getServiceName(), resolverProvider);
+        }
+        resolverProvider.refreshServerList(lbStrategy, servers);
+    }
+
+    protected List<String> getAllServiceNodes() {
+        return getChildren(PathHelper.getParentPath(suriveNodePath));
+    }
+
+    protected List<String> getChildren(String parentPath) {
+        if (!checkExists(parentPath)) {
+            return new ArrayList<>();
+        }
+        try {
+            List<String> children = client.getChildren().forPath(parentPath);
+            return children;
+        } catch (Exception e) {
+            throw new EasyGrpcException(e);
+        }
+
     }
 
     protected abstract class AbstractLeadershipSelectorListener implements LeaderSelectorListener {
@@ -280,6 +328,9 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
         private Object mutex = new Object();
 
         public void takeLeadership(CuratorFramework curatorFramework) throws Exception {
+            String node = context.getServerConfig().getIp() + ":"
+                    + context.getServerConfig().getPort();
+            LOGGER.info(node + " is now the leader ,and has been leader " + this.leaderCount.getAndIncrement() + " time(s) before.");
             boolean isJoined = isJoined();
             try {
                 if (isJoined) {
@@ -294,8 +345,7 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
                     mutex.wait();
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
-                // todo log
+                LOGGER.error( node + " has been interrupted", e);
             }
         }
 
@@ -329,6 +379,9 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
     @Override
     public List<Map<String, Object>> assembleServers(EasyGrpcServiceNode.Data serverData) {
         List<Map<String, Object>> servers = new ArrayList<>();
+        if(serverData == null){
+            return servers;
+        }
         List<String> address = serverData.getAddress();
         LOGGER.info("{} service 's addresses: {}", serverData.getServiceName(), address);
         if(CollectionHelper.isEmpty(address)){
