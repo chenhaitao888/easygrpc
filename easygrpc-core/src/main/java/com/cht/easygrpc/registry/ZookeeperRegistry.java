@@ -14,10 +14,7 @@ import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
-import org.apache.curator.framework.recipes.cache.ChildData;
-import org.apache.curator.framework.recipes.cache.PathChildrenCache;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
+import org.apache.curator.framework.recipes.cache.*;
 import org.apache.curator.framework.recipes.leader.LeaderSelector;
 import org.apache.curator.framework.recipes.leader.LeaderSelectorListener;
 import org.apache.curator.framework.state.ConnectionState;
@@ -44,6 +41,8 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
     protected CuratorFramework client;
 
     protected PathChildrenCache serverCache;
+
+    protected List<NodeCache> nodeCaches;
 
     protected LeaderSelector leaderSelector;
 
@@ -243,15 +242,34 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
                         return;
                     }
                     serverData.addAdress(suriveAddress);
-                    refreshServerNode(serverData);
                     break;
                 case REMOVE:
                     serverData.removeAdress(ip + ":" + port);
-                    refreshServerNode(serverData);
                     break;
             }
+            updateServerNode(serverNodePath, serverData);
         }
     }
+
+    class ServerNodeListener implements NodeCacheListener{
+
+        private NodeCache nodeCache;
+
+        public ServerNodeListener(NodeCache nodeCache) {
+            this.nodeCache = nodeCache;
+        }
+
+        @Override
+        public void nodeChanged() throws Exception {
+            if(!leaderSelector.hasLeadership()){
+                return;
+            }
+            EasyGrpcServiceNode serviceNode = new EasyGrpcServiceNode(nodeCache.getCurrentData());
+            EasyGrpcServiceNode.Data data = serviceNode.getData();
+            refreshServerNode(data);
+        }
+    }
+
 
     private void updateServerNode(String serverNodePath, EasyGrpcServiceNode.Data serverData) {
         EasyGrpcServiceNode node = new EasyGrpcServiceNode(serverNodePath, serverData);
@@ -277,7 +295,8 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
                 data.setAddress(null);
                 serviceNodes.forEach(e -> data.addAdress(e));
             }
-            refreshServerNode(data);
+            updateServerNode(serverNodePath, data);
+
         }
 
         @Override
@@ -293,7 +312,7 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
     }
 
     private void refreshServerNode(EasyGrpcServiceNode.Data data) {
-        updateServerNode(serverNodePath, data);
+
         EasyGrpcChannelManager channelManager = context.getEasyGrpcChannelManager();
         int lbStrategy = context.getCommonConfig().getLbStrategy() == 0 ? EasyGrpcLS.RANDOM : context.getCommonConfig().getLbStrategy();
         List<Map<String, Object>> servers = assembleServers(data);
@@ -372,6 +391,15 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
     public void join() {
         if(state.compareAndSet(State.LATENT, State.JOINED)){
             leaderSelector.start();
+            if(CollectionHelper.isNotEmpty(nodeCaches)){
+                nodeCaches.forEach(e -> {
+                    try {
+                        e.start(true);
+                    } catch (Exception exception) {
+                        LOGGER.error("start node cache failure", e);
+                    }
+                });
+            }
         }
 
     }
