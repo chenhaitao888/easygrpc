@@ -12,11 +12,10 @@ import com.cht.easygrpc.exception.NoAvailableWorkThreadException;
 import com.cht.easygrpc.exception.RemotingException;
 import com.cht.easygrpc.exception.StartupException;
 import com.cht.easygrpc.helper.CollectionHelper;
-import com.cht.easygrpc.logger.Logger;
-import com.cht.easygrpc.logger.LoggerFactory;
 import com.cht.easygrpc.remoting.conf.EasyGrpcServerConfig;
 import com.cht.easygrpc.remoting.iface.IServiceInitializer;
-import com.cht.easygrpc.support.EasyGrpcStub;
+import com.cht.easygrpc.stream.ServerStreamWrapObserver;
+import com.cht.easygrpc.support.stub.EasyGrpcStub;
 import com.google.common.collect.Lists;
 import io.grpc.Server;
 import io.grpc.stub.StreamObserver;
@@ -133,6 +132,11 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
             } catch (NoAvailableWorkThreadException e) {
                 throw new EasyGrpcException(e);
             }
+        }
+
+        @Override
+        public StreamObserver<EasyGrpcRequest> callStream(StreamObserver<EasyGrpcResponse> responseObserver) {
+            return new ServerStreamWrapObserver(responseObserver, context, serviceInfo, serviceStubMap);
         }
     }
 }

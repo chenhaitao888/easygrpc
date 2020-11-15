@@ -3,6 +3,7 @@ package com.cht.easygrpc.spring.boot.processor;
 import com.cht.easygrpc.ec.EventCenter;
 import com.cht.easygrpc.ec.EventSubscriber;
 import com.cht.easygrpc.spring.boot.annotation.EasyGrpcAutowired;
+import com.cht.easygrpc.spring.boot.config.EasyGrpcConstants;
 import com.cht.easygrpc.support.instance.EasyGrpcInjector;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
@@ -40,7 +41,8 @@ public class EasyGrpcProxProcessor extends AbstractEasyGrpcProcessor implements 
                 eventCenter.subscribe(new EventSubscriber(bean.getClass().getName() + "inject" + field.getName(),
                         (eventInfo) -> {
                             try {
-                                this.handleEasyGprcInjected(field, bean, field.getType());
+                                this.handleEasyGprcInjected(field, bean, field.getType(),
+                                        field.getAnnotation(EasyGrpcAutowired.class));
                             } catch (IllegalAccessException e) {
                                 logger.error("{} inject {} proxy failure", targetClass.getName(), field.getName(), e);
                             }
@@ -51,11 +53,16 @@ public class EasyGrpcProxProcessor extends AbstractEasyGrpcProcessor implements 
         return bean;
     }
 
-    private void handleEasyGprcInjected(Field field, Object bean, Class<?> type) throws IllegalAccessException {
+    private void handleEasyGprcInjected(Field field, Object bean, Class<?> type, EasyGrpcAutowired annotation) throws IllegalAccessException {
         try {
-            Object instance = container.createInstance(field.getType());
+            Object instance;
+            if(EasyGrpcConstants.EASY_GRPC_TYPE_STREAM.equals(annotation.type())){
+                instance = container.createStreamInstance(type);
+            }else {
+                instance = container.createInstance(type);
+            }
             if(instance == null){
-                logger.debug("{} can not create instance", field.getType());
+                logger.debug("{} can not create instance", type);
                 return;
             }
             field.setAccessible(true);

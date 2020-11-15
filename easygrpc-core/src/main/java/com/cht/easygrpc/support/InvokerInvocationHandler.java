@@ -1,5 +1,7 @@
 package com.cht.easygrpc.support;
 
+import com.cht.easygrpc.support.stub.EasyGrpcStub;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 

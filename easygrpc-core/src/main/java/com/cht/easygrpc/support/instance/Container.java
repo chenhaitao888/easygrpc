@@ -13,4 +13,8 @@ public interface Container {
 
     <T> void bindContext(Class<T> claz, EasyGrpcContext context);
 
+    <T> T createStreamInstance(Class<T> clazz);
+
+    <T> T createStreamInstance(Class<T> clazz, EasyGrpcContext context);
+
 }

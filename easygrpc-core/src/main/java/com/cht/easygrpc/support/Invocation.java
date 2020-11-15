@@ -13,4 +13,18 @@ public interface Invocation {
     Class<?> getReturnType();
 
     Method getMethod();
+
+    String getIfaceMethodKey();
+
+    String getRpcId();
+
+    String getReqId();
+
+    void setRpcId(String rpcId);
+
+    void setReqId(String reqId);
+
+    void setServiceName(String serviceName);
+
+    String getUniqueName();
 }

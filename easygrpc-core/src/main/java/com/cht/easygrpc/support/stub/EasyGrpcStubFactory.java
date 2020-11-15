@@ -1,4 +1,4 @@
-package com.cht.easygrpc.support;
+package com.cht.easygrpc.support.stub;
 
 import com.cht.easygrpc.EasyGrpcContext;
 import com.cht.easygrpc.enums.GrpcStubType;
@@ -16,8 +16,16 @@ public class EasyGrpcStubFactory {
         }
         if(stubType == GrpcStubType.BLOCK.getCode()){
             return new EasyGrpcBlockStub<>(type, context);
-        }else {
+        }
+        if(stubType == GrpcStubType.STREAM.getCode()){
+            return new EasyGrpcStreamStub<>(type, context);
+        }
+        else {
             throw new EasyGrpcException(stubType + " not match easy grpc stub");
         }
+    }
+
+    public static <T> EasyGrpcStub<T> createGrpcStreamStub(Class<T> clazz, EasyGrpcContext context) {
+        return new EasyGrpcStreamStub<>(clazz, context);
     }
 }

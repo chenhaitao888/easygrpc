@@ -16,6 +16,9 @@ public class JsonHelper {
 
     public static <T> T fromJson(String json, Class<T> clazz) {
         try {
+            if(json == null){
+                return null;
+            }
             return mapper.readValue(json, clazz);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -23,6 +26,7 @@ public class JsonHelper {
     }
 
     public static <T> T fromJson(byte[] bytes, Class<T> clazz) {
+
         return fromJson(StringHelper.getString(bytes), clazz);
     }
 

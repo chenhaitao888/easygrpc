@@ -10,5 +10,5 @@ import java.lang.annotation.*;
 @Target(ElementType.FIELD)
 public @interface EasyGrpcAutowired {
 
-    String value() default "";
+    String type() default "";
 }
