@@ -10,10 +10,11 @@ Easygrpc是一款基于gprc的远程调用框架,极大的简化了使用方式,
 
 ### maven依赖
 spring方式: 
+```
  <dependency>
     <groupId>com.cht</groupId>
     <artifactId>easygrpc-spring-boot-starter</artifactId>
     <version>${version}</version>
  </dependency>
-
+```
 
