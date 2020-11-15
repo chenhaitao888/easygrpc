@@ -98,6 +98,7 @@ easygrpc:
   ]
 ```
 说明: clientConfig为需要调用的服务端的信息，clientName对应于服务端的名，ifaceNames为需要远程调用的接口名，timeoutInMillis为接口调用超时时间，queueCapacity为线程池队列大小，stubType为调用方式。目前支持block和stream两种方式，分别对应0和1，默认为0
+
 2. 客户端启动
 ```
 EasyGrpcBootstrap bootstrap = new EasyGrpcBootstrap();
