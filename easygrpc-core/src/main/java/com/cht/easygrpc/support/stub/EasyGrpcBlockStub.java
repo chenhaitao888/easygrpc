@@ -6,6 +6,7 @@ import com.cht.easygrpc.EasyGrpcResponse;
 import com.cht.easygrpc.EasyGrpcServiceGrpc;
 import com.cht.easygrpc.helper.GrpcParseHelper;
 import com.cht.easygrpc.support.Invocation;
+import io.grpc.Channel;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.AbstractStub;
 
@@ -43,7 +44,7 @@ public class EasyGrpcBlockStub<T> extends AbstractGrpcStub<T> {
     }
 
     @Override
-    protected AbstractStub createEasyGrpcServiceStub(ManagedChannel manageChannel, Invocation invocation, long timeout) {
+    protected AbstractStub createEasyGrpcServiceStub(Channel manageChannel, Invocation invocation, long timeout) {
         /*EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub blockingStub = EasyGrpcServiceGrpc.newBlockingStub(manageChannel)
                 .withDeadlineAfter(timeout, TimeUnit.MILLISECONDS)
                 .withOption(IFACE_METHOD_KEY, getIfaceMethodKey(invocation.getIfaceName(), invocation.getMethodName()))

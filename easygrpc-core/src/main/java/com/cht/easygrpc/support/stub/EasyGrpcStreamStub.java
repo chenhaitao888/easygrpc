@@ -7,6 +7,7 @@ import com.cht.easygrpc.stream.ClientStreamWrapObserver;
 import com.cht.easygrpc.stream.EasyGrpcClientStreamObserever;
 import com.cht.easygrpc.stream.EasyGrpcStreamObserver;
 import com.cht.easygrpc.support.Invocation;
+import io.grpc.Channel;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.AbstractStub;
 import io.grpc.stub.StreamObserver;
@@ -36,7 +37,7 @@ public class EasyGrpcStreamStub<T> extends AbstractGrpcStub<T> {
     }
 
     @Override
-    protected AbstractStub createEasyGrpcServiceStub(ManagedChannel manageChannel, Invocation invocation, long timeout) {
+    protected AbstractStub createEasyGrpcServiceStub(Channel manageChannel, Invocation invocation, long timeout) {
         EasyGrpcServiceGrpc.EasyGrpcServiceStub easyGrpcServiceStub = new AsynStubBuilder(invocation, timeout, manageChannel)
                                                                             .buildStub();
         return easyGrpcServiceStub;

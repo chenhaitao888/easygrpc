@@ -9,11 +9,15 @@ import com.cht.easygrpc.exception.EasyGrpcException;
 import com.cht.easygrpc.exception.ServiceException;
 import com.cht.easygrpc.helper.GrpcParseHelper;
 import com.cht.easygrpc.helper.StringHelper;
+import com.cht.easygrpc.interceptor.CircuitBreakerInterceptor;
+import com.cht.easygrpc.interceptor.CircuitBreakerInterceptor1;
 import com.cht.easygrpc.remoting.AbstractRemoting;
 import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
 import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
 import com.cht.easygrpc.remoting.conf.EasyGrpcMethodConfig;
 import com.cht.easygrpc.support.Invocation;
+import io.grpc.Channel;
+import io.grpc.ClientInterceptors;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.AbstractStub;
 
@@ -114,7 +118,7 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
 
     protected abstract Object doCall(Invocation invocation) throws Exception;
 
-    protected abstract AbstractStub createEasyGrpcServiceStub(ManagedChannel manageChannel, Invocation invocation, long timeout);
+    protected abstract AbstractStub createEasyGrpcServiceStub(Channel manageChannel, Invocation invocation, long timeout);
 
     protected long getTimeout(String serviceName, String method) {
         if (timeout > 0) {
@@ -181,14 +185,14 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
 
     class AsynStubBuilder extends AbstractStubBuilder<EasyGrpcServiceGrpc.EasyGrpcServiceStub> {
 
-        public AsynStubBuilder(Invocation invocation, long timeout, ManagedChannel manageChannel) {
+        public AsynStubBuilder(Invocation invocation, long timeout, Channel manageChannel) {
             super(EasyGrpcServiceGrpc::newStub, invocation, timeout, manageChannel);
         }
     }
 
     class BlockingStubBuilder extends AbstractStubBuilder<EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub> {
 
-        public BlockingStubBuilder(Invocation invocation, long timeout, ManagedChannel manageChannel) {
+        public BlockingStubBuilder(Invocation invocation, long timeout, Channel manageChannel) {
             super(EasyGrpcServiceGrpc::newBlockingStub, invocation, timeout, manageChannel);
         }
     }
