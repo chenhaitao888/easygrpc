@@ -11,6 +11,7 @@ import com.cht.easygrpc.helper.GrpcParseHelper;
 import com.cht.easygrpc.helper.StringHelper;
 import com.cht.easygrpc.interceptor.CircuitBreakerInterceptor;
 import com.cht.easygrpc.interceptor.CircuitBreakerInterceptor1;
+import com.cht.easygrpc.interceptor.EasyGrpcClientInterceptor;
 import com.cht.easygrpc.remoting.AbstractRemoting;
 import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
 import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
@@ -48,8 +49,18 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
 
     protected final Map<String, EasyGrpcClientConfig> clientConfigMap = new ConcurrentHashMap<>();
 
+    protected final AbstractGrpcStub stub;
+    protected final EasyGrpcClientInterceptor interceptor;
+
     public AbstractGrpcStub(Class<T> type, EasyGrpcContext context) {
         this(type,null, context);
+    }
+
+    public AbstractGrpcStub(AbstractGrpcStub stub, EasyGrpcClientInterceptor interceptor) {
+        this.stub = stub;
+        this.interceptor = interceptor;
+        this.ifaces = null;
+        this.attachment = null;
     }
 
     public AbstractGrpcStub(Class<T> ifaces, Map<String, Object> attachment, EasyGrpcContext context) {
@@ -59,6 +70,8 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
         }
         this.ifaces = ifaces;
         this.attachment = attachment == null ? null : Collections.unmodifiableMap(attachment);
+        this.stub = null;
+        this.interceptor = null;
     }
 
 
@@ -116,7 +129,7 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
         }
     }
 
-    protected abstract Object doCall(Invocation invocation) throws Exception;
+    public abstract Object doCall(Invocation invocation) throws Exception;
 
     protected abstract AbstractStub createEasyGrpcServiceStub(Channel manageChannel, Invocation invocation, long timeout);
 

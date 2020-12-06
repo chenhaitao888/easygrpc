@@ -28,7 +28,7 @@ public class EasyGrpcBlockStub<T> extends AbstractGrpcStub<T> {
     }
 
     @Override
-    protected T doCall(Invocation invocation) throws Exception {
+    public T doCall(Invocation invocation) throws Exception {
         long timeout = getTimeout(getServiceName(invocation.getIfaceName()), invocation.getMethodName());
         EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub blockingStub =
                 (EasyGrpcServiceGrpc.EasyGrpcServiceBlockingStub) createEasyGrpcServiceStub(invocation, timeout);

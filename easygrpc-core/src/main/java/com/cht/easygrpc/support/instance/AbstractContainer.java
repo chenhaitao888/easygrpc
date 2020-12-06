@@ -2,6 +2,9 @@ package com.cht.easygrpc.support.instance;
 
 import com.cht.easygrpc.EasyGrpcContext;
 import com.cht.easygrpc.exception.EasyGrpcException;
+import com.cht.easygrpc.interceptor.CircuitBreakerInterceptor;
+import com.cht.easygrpc.interceptor.EasyGrpcClientInterceptors;
+import com.cht.easygrpc.support.stub.AbstractGrpcStub;
 import com.cht.easygrpc.support.stub.EasyGrpcStub;
 import com.cht.easygrpc.support.stub.EasyGrpcStubFactory;
 
@@ -22,6 +25,7 @@ public abstract class AbstractContainer implements Container{
             throw new EasyGrpcException(clazz.getSimpleName() + "'s context == null");
         }
         EasyGrpcStub<T> grpcStub = EasyGrpcStubFactory.createGrpcStub(clazz, context);
+        EasyGrpcClientInterceptors.intercept((AbstractGrpcStub) grpcStub, new CircuitBreakerInterceptor());
         return context.getProxyFactory().getProxy(grpcStub);
     }
 

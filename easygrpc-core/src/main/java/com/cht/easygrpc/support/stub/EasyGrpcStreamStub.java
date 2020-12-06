@@ -22,7 +22,7 @@ public class EasyGrpcStreamStub<T> extends AbstractGrpcStub<T> {
     }
 
     @Override
-    protected Object doCall(Invocation invocation) throws Exception {
+    public Object doCall(Invocation invocation) throws Exception {
         long timeout = getTimeout(getServiceName(invocation.getIfaceName()), invocation.getMethodName());
         EasyGrpcServiceGrpc.EasyGrpcServiceStub easyGrpcServiceStub =
                 (EasyGrpcServiceGrpc.EasyGrpcServiceStub) createEasyGrpcServiceStub(invocation, timeout);
