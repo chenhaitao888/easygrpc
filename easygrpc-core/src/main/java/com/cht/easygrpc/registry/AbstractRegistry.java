@@ -38,6 +38,10 @@ public abstract class AbstractRegistry implements Registry{
         return basePath() + "/server/nodes";
     }
 
+    protected String getClientPath() {
+        return basePath() + "/client";
+    }
+
     protected String getServerPath(String serviceName){
         return ROOT_PATH + "/" + serviceName + "/server/nodes";
     }
@@ -65,5 +69,11 @@ public abstract class AbstractRegistry implements Registry{
 
         return path.toString();
     }
+
+    protected String getClientCachePath(String serviceName){
+        return getClientPath() + "/" + serviceName;
+    }
+
+    protected abstract void initCircuitBreaker() throws Exception;
 
 }

@@ -4,6 +4,8 @@ import com.cht.easygrpc.EasyGrpcContext;
 import com.cht.easygrpc.helper.CollectionHelper;
 import com.cht.easygrpc.helper.JsonHelper;
 import com.cht.easygrpc.helper.PathHelper;
+import com.cht.easygrpc.remoting.EasyGrpcCircuitBreakerManager;
+import com.cht.easygrpc.remoting.conf.EasyGrpcCircuitBreakerConfig;
 import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
 import org.apache.curator.framework.recipes.cache.NodeCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
@@ -20,10 +22,7 @@ import static org.apache.curator.framework.recipes.cache.PathChildrenCache.Start
  */
 public class EasyGrpcRegistry extends ZookeeperRegistry {
 
-
-
     private EasyGrpcContext context;
-
 
     public EasyGrpcRegistry(EasyGrpcContext context) {
         super(context);
@@ -39,12 +38,17 @@ public class EasyGrpcRegistry extends ZookeeperRegistry {
         }else {
             this.serverNodePath = getServerPath();
         }
+
         EasyGrpcServiceNode.Data data = new EasyGrpcServiceNode.Data(context.getServerConfig().getIp(),
                 context.getServerConfig().getPort(), "service");
         data.setServiceName(context.getServerConfig().getServiceName());
         this.suriveNodePath = createNodeData(getFullPath(data), true, false, JsonHelper.toBytes(data));
         this.serverCache = new PathChildrenCache(client, PathHelper.getParentPath(getFullPath(data)), true);
         this.serverCache.getListenable().addListener(new ServerCacheListener());
+
+        this.clientCache = new PathChildrenCache(client,
+                getClientCachePath(context.getServerConfig().getServiceName()), true);
+        this.clientCache.getListenable().addListener(new ClientCacheListener());
 
         List<EasyGrpcClientConfig> clientConfigs = context.getClientConfigs();
         if(CollectionHelper.isNotEmpty(clientConfigs)){

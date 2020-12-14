@@ -16,6 +16,7 @@ import com.cht.easygrpc.registry.EasyGrpcRegistry;
 import com.cht.easygrpc.registry.Registry;
 import com.cht.easygrpc.remoting.AbstractRemoting;
 import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
+import com.cht.easygrpc.remoting.EasyGrpcCircuitBreakerManager;
 import com.cht.easygrpc.remoting.EasyGrpcServer;
 import com.cht.easygrpc.remoting.conf.ConfigContext;
 import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
@@ -52,7 +53,7 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
 
     protected Container container = EasyGrpcInjector.getInstance(Container.class);
 
-    protected EventCenter eventCenter = EasyGrpcInjector.getInstance(EventCenter.class);;
+    protected EventCenter eventCenter = EasyGrpcInjector.getInstance(EventCenter.class);
 
     protected IServiceInitializer iServiceInitializer;
 
@@ -180,6 +181,7 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
             context.setRpcRunnerPool(runnerPool);
             context.setProxyFactory(proxyFactory);
             context.setEasyGrpcChannelManager(channelManager);
+            context.setCircuitBreakerManager(new EasyGrpcCircuitBreakerManager());
         } catch (Exception e) {
             throw new EasyGrpcException("before remoting start failure", e);
         }

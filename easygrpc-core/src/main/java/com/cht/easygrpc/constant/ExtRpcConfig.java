@@ -11,4 +11,6 @@ public interface ExtRpcConfig {
 
     String INJECT_EVENT = "inject.easygrpc.service";
 
+    String CLIENT_CALL_FAILURE = "client.call.failure";
+
 }

@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * @author : chenhaitao934
+ * @author : chenhaitao934x
  * @date : 12:22 上午 2020/10/12
  */
 public class EasyGrpcServiceNode extends AbstractGenericNode<EasyGrpcServiceNode, EasyGrpcServiceNode.Data>{

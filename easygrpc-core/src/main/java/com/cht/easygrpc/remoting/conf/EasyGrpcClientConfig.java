@@ -22,6 +22,8 @@ public class EasyGrpcClientConfig {
 
     private int stubType;
 
+    private EasyGrpcCircuitBreakerConfig circuitBreakerConfig;
+
     public String getClientName() {
         return clientName;
     }
@@ -76,5 +78,13 @@ public class EasyGrpcClientConfig {
 
     public void setStubType(int stubType) {
         this.stubType = stubType;
+    }
+
+    public EasyGrpcCircuitBreakerConfig getCircuitBreakerConfig() {
+        return circuitBreakerConfig;
+    }
+
+    public void setCircuitBreakerConfig(EasyGrpcCircuitBreakerConfig circuitBreakerConfig) {
+        this.circuitBreakerConfig = circuitBreakerConfig;
     }
 }

@@ -25,7 +25,7 @@ public abstract class AbstractContainer implements Container{
             throw new EasyGrpcException(clazz.getSimpleName() + "'s context == null");
         }
         EasyGrpcStub<T> grpcStub = EasyGrpcStubFactory.createGrpcStub(clazz, context);
-        EasyGrpcClientInterceptors.intercept((AbstractGrpcStub) grpcStub, new CircuitBreakerInterceptor());
+        EasyGrpcClientInterceptors.intercept((AbstractGrpcStub) grpcStub, new CircuitBreakerInterceptor(context));
         return context.getProxyFactory().getProxy(grpcStub);
     }
 

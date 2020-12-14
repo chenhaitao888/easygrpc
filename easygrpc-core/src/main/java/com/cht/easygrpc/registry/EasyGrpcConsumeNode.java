@@ -1,6 +1,9 @@
 package com.cht.easygrpc.registry;
 
+import com.cht.easygrpc.domain.CircuitBreakerInfo;
 import org.apache.curator.framework.recipes.cache.ChildData;
+
+import java.util.List;
 
 /**
  * @author : chenhaitao934
@@ -19,10 +22,36 @@ public class EasyGrpcConsumeNode extends AbstractGenericNode<EasyGrpcConsumeNode
         super(path, nodeData);
     }
 
+    // basepath/client/serviceName/clientName/{data}
     public static class Data extends AbstractNode<EasyGrpcConsumeNode.Data>{
 
-        public Data(String ip, int port, String nodeType) {
-            super(ip, port, nodeType);
+        private String serviceName;
+        private String clientName;
+
+        private List<CircuitBreakerInfo> circuitBreakerInfos;
+
+        public String getServiceName() {
+            return serviceName;
+        }
+
+        public void setServiceName(String serviceName) {
+            this.serviceName = serviceName;
+        }
+
+        public String getClientName() {
+            return clientName;
+        }
+
+        public void setClientName(String clientName) {
+            this.clientName = clientName;
+        }
+
+        public List<CircuitBreakerInfo> getCircuitBreakerInfos() {
+            return circuitBreakerInfos;
+        }
+
+        public void setCircuitBreakerInfos(List<CircuitBreakerInfo> circuitBreakerInfos) {
+            this.circuitBreakerInfos = circuitBreakerInfos;
         }
     }
 }

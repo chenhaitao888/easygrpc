@@ -3,13 +3,13 @@ package com.cht.easygrpc.registry;
 import com.cht.easygrpc.EasyGrpcContext;
 import com.cht.easygrpc.constant.EasyGrpcLS;
 import com.cht.easygrpc.discovery.EasyGrpcNameResolverProvider;
+import com.cht.easygrpc.domain.CircuitBreakerInfo;
 import com.cht.easygrpc.enums.EventStatus;
 import com.cht.easygrpc.exception.EasyGrpcException;
 import com.cht.easygrpc.exception.RegistryException;
-import com.cht.easygrpc.helper.CollectionHelper;
-import com.cht.easygrpc.helper.EventHelper;
-import com.cht.easygrpc.helper.PathHelper;
+import com.cht.easygrpc.helper.*;
 import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
+import com.google.common.base.Charsets;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -19,6 +19,7 @@ import org.apache.curator.framework.recipes.leader.LeaderSelector;
 import org.apache.curator.framework.recipes.leader.LeaderSelectorListener;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
 
@@ -42,6 +43,8 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
 
     protected PathChildrenCache serverCache;
 
+    protected PathChildrenCache clientCache;
+
     protected List<NodeCache> nodeCaches;
 
     protected LeaderSelector leaderSelector;
@@ -49,6 +52,8 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
     protected String serverNodePath;
 
     protected String suriveNodePath;
+
+    protected String clientNodePath;
 
     private static final Stat EMPTY_STAT = new Stat();
 
@@ -271,6 +276,15 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
     }
 
 
+    class ClientCacheListener implements PathChildrenCacheListener {
+
+        @Override
+        public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
+
+        }
+    }
+
+
     private void updateServerNode(String serverNodePath, EasyGrpcServiceNode.Data serverData) {
         EasyGrpcServiceNode node = new EasyGrpcServiceNode(serverNodePath, serverData);
         setData(node.getPath(), node.getDataBytes());
@@ -391,6 +405,12 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
     public void join() {
         if(state.compareAndSet(State.LATENT, State.JOINED)){
             leaderSelector.start();
+            try {
+                clientCache.start();
+                initCircuitBreaker();
+            } catch (Exception e) {
+                LOGGER.error("start client cache failure", e);
+            }
             if(CollectionHelper.isNotEmpty(nodeCaches)){
                 nodeCaches.forEach(e -> {
                     try {
@@ -421,5 +441,39 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
             servers.add(stringObjectMap);
         });
         return servers;
+    }
+
+    @Override
+    protected void initCircuitBreaker() throws Exception {
+        clientCache.rebuild();
+        List<ChildData> childDatas = clientCache.getCurrentData();
+        if(CollectionHelper.isEmpty(childDatas)){
+            return;
+        }
+
+        childDatas.forEach(e -> {
+            String nodeName = ZKPaths.getNodeFromPath(e.getPath());
+            EasyGrpcConsumeNode.Data consumeNode = parseData(nodeName, e);
+            if (consumeNode != null) {
+                context.getCircuitBreakerManager().putCircuitBreaker(nodeName, consumeNode.getCircuitBreakerInfos());
+            }
+        });
+    }
+
+    private EasyGrpcConsumeNode.Data parseData(String nodeName, ChildData childData) {
+        if (childData == null) {
+            return null;
+        }
+        String data = new String(childData.getData(), Charsets.UTF_8);
+        if (StringHelper.isEmpty(data)) {
+            return null;
+        }
+
+        try {
+            return JsonHelper.fromJson(data.trim(), EasyGrpcConsumeNode.Data.class);
+        } catch (Exception e) {
+            LOGGER.error("parseData failure, nodeName:{}, childData:{}", nodeName, childData);
+            return null;
+        }
     }
 }
