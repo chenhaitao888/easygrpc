@@ -2,6 +2,7 @@ package com.cht.easygrpc.remoting;
 
 import com.cht.easygrpc.domain.CircuitBreakerInfo;
 import com.cht.easygrpc.helper.CollectionHelper;
+import com.cht.easygrpc.helper.GrpcParseHelper;
 import com.cht.easygrpc.helper.JsonHelper;
 import com.cht.easygrpc.logger.Logger;
 import com.cht.easygrpc.logger.LoggerFactory;
@@ -115,7 +116,20 @@ public class EasyGrpcCircuitBreakerManager {
     }
 
     public Object returnMockResult(Invocation invocation) {
-        return null;
+        try {
+            Map<String, CircuitBreakerInfo> circuitBreakerInfoMap = circuitBreakerMap.get(invocation.getServiceName());
+            if(null == circuitBreakerInfoMap){
+                return null;
+            }
+            CircuitBreakerInfo circuitBreakerInfo = circuitBreakerInfoMap.get(invocation.getIfaceMethodKey());
+            if (null == circuitBreakerInfo) {
+                return null;
+            }
+            return GrpcParseHelper.parseResult(circuitBreakerInfo.getMockResult(), invocation);
+        } catch (Exception e) {
+            LOGGER.error("return mock result failure ", e);
+            return null;
+        }
     }
 
     class CircuitBreaker {
