@@ -63,6 +63,11 @@ public class EasyGrpcInvocation implements Invocation{
     }
 
     @Override
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    @Override
     public Class<?>[] getParameterTypes() {
         return parameterTypes;
     }

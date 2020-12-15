@@ -4,7 +4,11 @@ import com.cht.easygrpc.EasyGrpcContext;
 import com.cht.easygrpc.constant.ExtRpcConfig;
 import com.cht.easygrpc.ec.EventCenter;
 import com.cht.easygrpc.ec.EventInfo;
+import com.cht.easygrpc.logger.Logger;
+import com.cht.easygrpc.logger.LoggerFactory;
+import com.cht.easygrpc.registry.AbstractRegistry;
 import com.cht.easygrpc.remoting.EasyGrpcCircuitBreakerManager;
+import com.cht.easygrpc.remoting.conf.ConfigContext;
 import com.cht.easygrpc.support.Invocation;
 import com.cht.easygrpc.support.instance.EasyGrpcInjector;
 import com.cht.easygrpc.support.stub.AbstractGrpcStub;
@@ -18,18 +22,26 @@ import javax.annotation.Nullable;
  */
 public class CircuitBreakerInterceptor implements EasyGrpcClientInterceptor {
 
+    protected final static Logger LOGGER = LoggerFactory.getLogger(CircuitBreakerInterceptor.class.getName());
     protected EventCenter eventCenter = EasyGrpcInjector.getInstance(EventCenter.class);
 
-    private EasyGrpcCircuitBreakerManager circuitBreakerManager;
+    private final EasyGrpcCircuitBreakerManager circuitBreakerManager;
+
+    private final ConfigContext configContext;
 
     public CircuitBreakerInterceptor(EasyGrpcContext context) {
         this.circuitBreakerManager = context.getCircuitBreakerManager();
+        this.configContext = context.getConfigContext();
     }
 
     @Override
     public Object interceptCall(Invocation invocation, AbstractGrpcStub nextStub) throws Exception {
-        // todo circuit breaker
 
+        if(circuitBreakerManager.breakerTrigger(invocation, configContext)){
+            LOGGER.warn("breaker trigger open, not allow call server, unique name {}, args {}",
+                    invocation.getUniqueName(), invocation.getArguments());
+            return circuitBreakerManager.returnMockResult(invocation);
+        }
         Object result = null;
         try {
             result = nextStub.doCall(invocation);

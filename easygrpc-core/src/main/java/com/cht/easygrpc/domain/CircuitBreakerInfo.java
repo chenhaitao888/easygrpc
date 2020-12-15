@@ -51,7 +51,7 @@ public class CircuitBreakerInfo {
     }
 
     public String connectKey(){
-        return iface + "_" + method;
+        return iface + "." + method;
     }
 
 

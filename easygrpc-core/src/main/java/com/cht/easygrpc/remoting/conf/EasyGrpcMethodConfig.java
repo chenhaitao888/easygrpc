@@ -8,6 +8,8 @@ public class EasyGrpcMethodConfig {
     private String method;
     private int timeoutInMillis;
 
+    private EasyGrpcCircuitBreakerConfig circuitBreakerConfig;
+
     public String getIface() {
         return iface;
     }
@@ -39,4 +41,5 @@ public class EasyGrpcMethodConfig {
         methodConfig.setTimeoutInMillis(clientConfig.getTimeoutInMillis());
         return methodConfig;
     }
+
 }
