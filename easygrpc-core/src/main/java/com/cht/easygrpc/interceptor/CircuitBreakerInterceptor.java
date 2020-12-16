@@ -45,8 +45,9 @@ public class CircuitBreakerInterceptor implements EasyGrpcClientInterceptor {
         Object result = null;
         try {
             result = nextStub.doCall(invocation);
+            circuitBreakerManager.sendCallSuccess(invocation, configContext);
         } catch (Exception e) {
-            sendCallFailure(invocation);
+            circuitBreakerManager.sendCallFailure(invocation, configContext, e);
         }
         return result;
     }

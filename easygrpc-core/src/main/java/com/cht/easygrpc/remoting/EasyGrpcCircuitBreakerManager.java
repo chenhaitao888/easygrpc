@@ -1,6 +1,7 @@
 package com.cht.easygrpc.remoting;
 
 import com.cht.easygrpc.domain.CircuitBreakerInfo;
+import com.cht.easygrpc.enums.EasyGrpcResultStatus;
 import com.cht.easygrpc.helper.CollectionHelper;
 import com.cht.easygrpc.helper.GrpcParseHelper;
 import com.cht.easygrpc.helper.JsonHelper;
@@ -12,6 +13,7 @@ import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
 import com.cht.easygrpc.support.Invocation;
 import com.cht.easygrpc.support.SystemClock;
 import com.netflix.hystrix.util.HystrixRollingNumber;
+import com.netflix.hystrix.util.HystrixRollingNumberEvent;
 
 import java.util.List;
 import java.util.Map;
@@ -132,9 +134,87 @@ public class EasyGrpcCircuitBreakerManager {
         }
     }
 
+    public void sendCallFailure(Invocation invocation, ConfigContext configContext, Exception e) {
+        String serviceName = invocation.getServiceName();
+        EasyGrpcClientConfig clientConfig = configContext.getClientConfig(serviceName);
+        countCallFailTimes(serviceName, clientConfig.getCircuitBreakerConfig(), e);
+        String ifaceMethodKey = invocation.getIfaceMethodKey();
+        countCallFailTimes(ifaceMethodKey, getMethodCircuitBreakerConfig(invocation, clientConfig), e);
+    }
+
+    private void countCallFailTimes(String freezeCallKey, EasyGrpcCircuitBreakerConfig circuitBreakerConfig,
+                                    Exception e) {
+        if(!openBreaker(circuitBreakerConfig)){
+            return;
+        }
+        final CircuitBreaker circuitBreaker = getCircuitBreaker(freezeCallKey, circuitBreakerConfig);
+        circuitBreaker.getRollingNumber().increment(HystrixRollingNumberEvent.FAILURE);
+        if(EasyGrpcResultStatus.isTimeoutException(e)){
+            circuitBreaker.getRollingNumber().increment(HystrixRollingNumberEvent.TIMEOUT);
+        }
+
+        if(OverThreshold(circuitBreaker, circuitBreakerConfig)){
+            circuitBreaker.setLastErrorTime(SystemClock.now());
+            circuitBreaker.getCircuitBreakerOpen().compareAndSet(false, true);
+            circuitBreaker.getRollingNumber().reset();
+        }
+
+    }
+
+    private boolean OverThreshold(CircuitBreaker circuitBreaker, EasyGrpcCircuitBreakerConfig circuitBreakerConfig) {
+        long failNum = circuitBreaker.getRollingNumber().getRollingSum(HystrixRollingNumberEvent.FAILURE);
+        long timeoutNum = circuitBreaker.getRollingNumber().getRollingSum(HystrixRollingNumberEvent.TIMEOUT);
+        long totalNum = circuitBreaker.getRollingNumber().getRollingSum(HystrixRollingNumberEvent.SUCCESS) + failNum;
+
+        if (circuitBreakerConfig.getBreakerThreshold() > 0 && failNum >= circuitBreakerConfig.getBreakerThreshold()) {
+            return true;
+        }
+        if (failNum < 5) {
+            return false;
+        }
+
+        final Double circuitBreakerFailRate = circuitBreakerConfig.getBreakerFailRate();
+        if (circuitBreakerFailRate != null && Math.abs(circuitBreakerFailRate) >= ZERO_RANGE) {
+            if ((double) failNum / totalNum > circuitBreakerFailRate) {
+                return true;
+            }
+        }
+
+        final Double circuitBreakerTimeoutRate = circuitBreakerConfig.getBreakerTimeoutRate();
+        if (circuitBreakerTimeoutRate != null && Math.abs(circuitBreakerTimeoutRate) >= ZERO_RANGE) {
+            return (double) timeoutNum / totalNum > circuitBreakerTimeoutRate;
+        }
+
+        return false;
+    }
+
+    private CircuitBreaker getCircuitBreaker(String freezeCallKey, EasyGrpcCircuitBreakerConfig circuitBreakerConfig) {
+        return circuitBreaker.computeIfAbsent(freezeCallKey, key -> {
+            CircuitBreaker circuitBreaker = new CircuitBreaker();
+            circuitBreaker.setRollingNumber(new HystrixRollingNumber(circuitBreakerConfig.getBreakerStatisticsTimeWindow(), 10));
+            return circuitBreaker;
+        });
+    }
+
+    public void sendCallSuccess(Invocation invocation, ConfigContext configContext) {
+        String serviceName = invocation.getServiceName();
+        EasyGrpcClientConfig clientConfig = configContext.getClientConfig(serviceName);
+        countCallSuccessTimes(serviceName, clientConfig.getCircuitBreakerConfig());
+        String ifaceMethodKey = invocation.getIfaceMethodKey();
+        countCallSuccessTimes(ifaceMethodKey, getMethodCircuitBreakerConfig(invocation, clientConfig));
+    }
+
+    private void countCallSuccessTimes(String key, EasyGrpcCircuitBreakerConfig circuitBreakerConfig) {
+        if(!openBreaker(circuitBreakerConfig)){
+            return;
+        }
+        final CircuitBreaker circuitBreaker = getCircuitBreaker(key, circuitBreakerConfig);
+        circuitBreaker.getRollingNumber().increment(HystrixRollingNumberEvent.SUCCESS);
+    }
+
     class CircuitBreaker {
         private long lastErrorTime;
-        private HystrixRollingNumber errorRollingNumber;
+        private HystrixRollingNumber rollingNumber;
         private AtomicBoolean circuitBreakerOpen = new AtomicBoolean(false);
 
         public long getLastErrorTime() {
@@ -145,12 +225,12 @@ public class EasyGrpcCircuitBreakerManager {
             this.lastErrorTime = lastErrorTime;
         }
 
-        public HystrixRollingNumber getErrorRollingNumber() {
-            return errorRollingNumber;
+        public HystrixRollingNumber getRollingNumber() {
+            return rollingNumber;
         }
 
-        public void setErrorRollingNumber(HystrixRollingNumber errorRollingNumber) {
-            this.errorRollingNumber = errorRollingNumber;
+        public void setRollingNumber(HystrixRollingNumber rollingNumber) {
+            this.rollingNumber = rollingNumber;
         }
 
         public AtomicBoolean getCircuitBreakerOpen() {

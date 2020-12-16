@@ -9,7 +9,7 @@ public class EasyGrpcCircuitBreakerConfig {
     // 熔断时间窗口
     private int breakerTimeWindow;
     // 熔断统计时间窗口
-    private int breakerRateTimeWindow;
+    private int breakerStatisticsTimeWindow;
     // 熔断错误率
     private Double breakerFailRate;
     // 熔断超时率
@@ -31,12 +31,12 @@ public class EasyGrpcCircuitBreakerConfig {
         this.breakerTimeWindow = breakerTimeWindow;
     }
 
-    public int getBreakerRateTimeWindow() {
-        return breakerRateTimeWindow;
+    public int getBreakerStatisticsTimeWindow() {
+        return breakerStatisticsTimeWindow;
     }
 
-    public void setBreakerRateTimeWindow(int breakerRateTimeWindow) {
-        this.breakerRateTimeWindow = breakerRateTimeWindow;
+    public void setBreakerStatisticsTimeWindow(int breakerStatisticsTimeWindow) {
+        this.breakerStatisticsTimeWindow = breakerStatisticsTimeWindow;
     }
 
     public Double getBreakerFailRate() {
