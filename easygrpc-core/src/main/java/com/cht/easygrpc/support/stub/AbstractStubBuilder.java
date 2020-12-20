@@ -19,10 +19,10 @@ public abstract class AbstractStubBuilder<T extends AbstractStub<T>> {
     private final long timeout;
     private final Function<Channel, T> stubFunction;
     private final Invocation invocation;
-    private final ManagedChannel manageChannel;
+    private final Channel manageChannel;
 
     public AbstractStubBuilder(Function<Channel, T> stubChannelFunction,
-                               Invocation invocation, long timeout, ManagedChannel manageChannel) {
+                               Invocation invocation, long timeout, Channel manageChannel) {
         this.stubFunction = stubChannelFunction;
         this.invocation = invocation;
         this.timeout = timeout;

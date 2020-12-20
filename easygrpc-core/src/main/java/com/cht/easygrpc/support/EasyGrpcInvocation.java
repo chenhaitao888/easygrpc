@@ -28,8 +28,8 @@ public class EasyGrpcInvocation implements Invocation{
 
 
 
-    public EasyGrpcInvocation(Method method, String serviceName, Object[] arguments){
-        this(method.getName(), serviceName, arguments);
+    public EasyGrpcInvocation(Method method, String ifaceName, Object[] arguments){
+        this(method.getName(), ifaceName, arguments);
         this.returnType = method.getReturnType();
         this.method = method;
     }
@@ -60,6 +60,11 @@ public class EasyGrpcInvocation implements Invocation{
     @Override
     public String getIfaceName() {
         return ifaceName;
+    }
+
+    @Override
+    public String getServiceName() {
+        return serviceName;
     }
 
     @Override

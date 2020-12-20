@@ -22,6 +22,7 @@
         <spring.boot.version>2.3.1.RELEASE</spring.boot.version>
         <guava.version>20.0</guava.version>
         <httpcore.version>4.4.8</httpcore.version>
+        <netflix.version>1.5.18</netflix.version>
     </properties>
 
     <dependencyManagement>
@@ -94,6 +95,12 @@
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
                 <version>${httpcore.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.netflix.hystrix</groupId>
+                <artifactId>hystrix-core</artifactId>
+                <version>${netflix.version}</version>
             </dependency>
 
         </dependencies>

@@ -1,6 +1,8 @@
 package com.cht.easygrpc;
 
 import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
+import com.cht.easygrpc.remoting.EasyGrpcCircuitBreakerManager;
+import com.cht.easygrpc.remoting.EasyGrpcManager;
 import com.cht.easygrpc.remoting.conf.ConfigContext;
 import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
 import com.cht.easygrpc.remoting.conf.EasyGrpcCommonConfig;
@@ -35,6 +37,8 @@ public class EasyGrpcContext {
 
     public static final String RPC_CONTEXT_KEY_CLIENT_APPID = "appid";
     public static final String RPC_CONTEXT_KEY_CLIENT_SERVICE_NAME = "serviceName";
+
+    private EasyGrpcCircuitBreakerManager circuitBreakerManager;
 
     public EasyGrpcServerConfig getServerConfig() {
         return serverConfig;
@@ -98,5 +102,13 @@ public class EasyGrpcContext {
 
     public void setProxyFactory(ProxyFactory proxyFactory) {
         this.proxyFactory = proxyFactory;
+    }
+
+    public EasyGrpcCircuitBreakerManager getCircuitBreakerManager() {
+        return circuitBreakerManager;
+    }
+
+    public void setCircuitBreakerManager(EasyGrpcCircuitBreakerManager circuitBreakerManager) {
+        this.circuitBreakerManager = circuitBreakerManager;
     }
 }

@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 public interface Invocation {
     String getMethodName();
     String getIfaceName();
+    String getServiceName();
     Class<?>[] getParameterTypes();
     Object[] getArguments();
     Class<?> getReturnType();
