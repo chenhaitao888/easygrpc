@@ -169,7 +169,7 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
     protected EasyGrpcRequest buildRequest(Invocation invocation) {
         String requestJson = GrpcParseHelper.genArgJsons(invocation.getArguments());
         EasyGrpcRequest request = EasyGrpcRequest.newBuilder().setReqId(invocation.getReqId())
-                .setRpcId(baseParameter.get("rpcId"))
+                .setRpcId(invocation.getRpcId())
                 .setIface(invocation.getIfaceName())
                 .setMethod(invocation.getMethodName())
                 .setRequestJson(requestJson)

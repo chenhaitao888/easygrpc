@@ -44,13 +44,14 @@ public class CircuitBreakerInterceptor extends AbstractInterceptor {
                     invocation.getUniqueName(), invocation.getArguments());
             return circuitBreakerManager.returnMockResult(invocation);
         }
-        Object result = null;
+        Object result;
         try {
             result = nextStub.doCall(invocation);
             circuitBreakerManager.sendCallSuccess(invocation, configContext);
         } catch (Exception e) {
             LOGGER.error("{} call failure", invocation.getUniqueName(), e);
             circuitBreakerManager.sendCallFailure(invocation, configContext, e);
+            throw e;
         }
         return result;
     }
