@@ -18,14 +18,15 @@ import java.util.List;
  */
 public class EasyGrpcClientInterceptors {
 
-    public static EasyGrpcStub intercept(AbstractGrpcStub stub, EasyGrpcClientInterceptor... interceptors) {
-        return intercept(stub, Arrays.asList(interceptors));
+    public static <T> EasyGrpcStub intercept(AbstractGrpcStub stub,
+                                             Class<T> type, EasyGrpcClientInterceptor... interceptors) {
+        return intercept(stub, type, Arrays.asList(interceptors));
     }
 
-    public static EasyGrpcStub intercept(AbstractGrpcStub stub, List<? extends EasyGrpcClientInterceptor> interceptors) {
+    public static <T> EasyGrpcStub intercept(AbstractGrpcStub stub, Class<T> type, List<? extends EasyGrpcClientInterceptor> interceptors) {
         Preconditions.checkNotNull(stub, "stub");
         for (EasyGrpcClientInterceptor interceptor : interceptors) {
-            stub = new EasyGrpcClientInterceptors.InterceptorEasyGrpcStub(stub, interceptor);
+            stub = new EasyGrpcClientInterceptors.InterceptorEasyGrpcStub(stub, interceptor, type);
         }
         return stub;
 
@@ -34,8 +35,8 @@ public class EasyGrpcClientInterceptors {
     private static class InterceptorEasyGrpcStub extends AbstractGrpcStub {
 
 
-        public InterceptorEasyGrpcStub(AbstractGrpcStub stub, EasyGrpcClientInterceptor interceptor){
-            super(stub, interceptor);
+        public <T> InterceptorEasyGrpcStub(AbstractGrpcStub stub, EasyGrpcClientInterceptor interceptor, Class<T> type){
+            super(stub, interceptor, type);
         }
 
         @Override

@@ -445,7 +445,16 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
 
     @Override
     protected void initCircuitBreaker() throws Exception {
-        clientCache.rebuild();
+        EasyGrpcConsumeNode.Data consumeNode = new EasyGrpcConsumeNode.Data();
+        List<CircuitBreakerInfo> circuitBreakerInfos = new ArrayList<>();
+        CircuitBreakerInfo circuitBreakerInfo = new CircuitBreakerInfo();
+        circuitBreakerInfo.setClientName("EasyGrpcServer");
+        circuitBreakerInfo.setIface("com.easygrpc.example.client.service.EasyGrpcExample");
+        circuitBreakerInfo.setMethod("hello");
+        circuitBreakerInfo.setMockResult("mock test");
+        circuitBreakerInfos.add(circuitBreakerInfo);
+        context.getCircuitBreakerManager().putCircuitBreaker("EasyGrpcServer", consumeNode.getCircuitBreakerInfos());
+        /**clientCache.rebuild();
         List<ChildData> childDatas = clientCache.getCurrentData();
         if(CollectionHelper.isEmpty(childDatas)){
             return;
@@ -457,7 +466,7 @@ public abstract class ZookeeperRegistry extends AbstractRegistry{
             if (consumeNode != null) {
                 context.getCircuitBreakerManager().putCircuitBreaker(nodeName, consumeNode.getCircuitBreakerInfos());
             }
-        });
+        });*/
     }
 
     private EasyGrpcConsumeNode.Data parseData(String nodeName, ChildData childData) {

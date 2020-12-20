@@ -56,10 +56,11 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
         this(type,null, context);
     }
 
-    public AbstractGrpcStub(AbstractGrpcStub stub, EasyGrpcClientInterceptor interceptor) {
+    public AbstractGrpcStub(AbstractGrpcStub stub, EasyGrpcClientInterceptor interceptor, Class<T> type) {
+        super(interceptor.getContext());
         this.stub = stub;
         this.interceptor = interceptor;
-        this.ifaces = null;
+        this.ifaces = type;
         this.attachment = null;
     }
 
@@ -167,7 +168,7 @@ public abstract class AbstractGrpcStub<T> extends AbstractRemoting implements Ea
 
     protected EasyGrpcRequest buildRequest(Invocation invocation) {
         String requestJson = GrpcParseHelper.genArgJsons(invocation.getArguments());
-        EasyGrpcRequest request = EasyGrpcRequest.newBuilder().setReqId(baseParameter.get("reqId"))
+        EasyGrpcRequest request = EasyGrpcRequest.newBuilder().setReqId(invocation.getReqId())
                 .setRpcId(baseParameter.get("rpcId"))
                 .setIface(invocation.getIfaceName())
                 .setMethod(invocation.getMethodName())

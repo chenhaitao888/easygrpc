@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 /**
  * @author : chenhaitao934
  */
-public class CircuitBreakerInterceptor implements EasyGrpcClientInterceptor {
+public class CircuitBreakerInterceptor extends AbstractInterceptor {
 
     protected final static Logger LOGGER = LoggerFactory.getLogger(CircuitBreakerInterceptor.class.getName());
     protected EventCenter eventCenter = EasyGrpcInjector.getInstance(EventCenter.class);
@@ -30,8 +30,10 @@ public class CircuitBreakerInterceptor implements EasyGrpcClientInterceptor {
     private final ConfigContext configContext;
 
     public CircuitBreakerInterceptor(EasyGrpcContext context) {
+        super(context);
         this.circuitBreakerManager = context.getCircuitBreakerManager();
         this.configContext = context.getConfigContext();
+
     }
 
     @Override
@@ -47,6 +49,7 @@ public class CircuitBreakerInterceptor implements EasyGrpcClientInterceptor {
             result = nextStub.doCall(invocation);
             circuitBreakerManager.sendCallSuccess(invocation, configContext);
         } catch (Exception e) {
+            LOGGER.error("{} call failure", invocation.getUniqueName(), e);
             circuitBreakerManager.sendCallFailure(invocation, configContext, e);
         }
         return result;
