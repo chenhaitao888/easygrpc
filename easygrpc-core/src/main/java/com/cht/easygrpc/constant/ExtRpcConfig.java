@@ -13,4 +13,6 @@ public interface ExtRpcConfig {
 
     String CLIENT_CALL_FAILURE = "client.call.failure";
 
+    String CIRCUIT_BREAKER_EVENT = "circuit.breaker.event";
+
 }
