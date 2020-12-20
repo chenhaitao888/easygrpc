@@ -297,7 +297,36 @@ public class EasyGrpcStreamExampleImpl implements EasyGrpcStreamExample {
         done.await();
 ```
 
+### easygrpc熔断实现
+当某个请求在一定时间内到达熔断阈值后,服务会开启熔断,不会再调用远端服务,直接返回mock结果。
+#### 熔断配置
+客户端配置
+```
+easygrpc:
+  serverConfig:
+    serviceName: "EasyGrpcClient"
+    port: 8077
+  commonConfig:
+    registryAddress: "xxxx:2181"
+    appId: "EasyGrpcClient"
+    parameters:
+      easygrpc.logger: "slf4j"
+      easygrpc.proxy: "jdk"
 
+  clientConfig:
+    - clientName: "EasyGrpcServer"
+      ifaceNames: ["com.easygrpc.example.client.service.EasyGrpcExample"]
+      workThreads: 20
+      timeoutInMillis: 5000
+      queueCapacity: 500
+      circuitBreakerConfig:
+        breakerThreshold: 100
+        breakerTimeWindow: 60000
+        breakerStatisticsTimeWindow: 5000
+        breakerFailRate: 0.02
+        breakerTimeoutRate: 0.01
+```
+表示在5秒内累积调用错误累积100次或错误率2%或超时错误率1%,将会触发熔断机制,持续时间1分钟
 ### 框架设计
 
 
