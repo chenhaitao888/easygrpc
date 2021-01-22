@@ -1,5 +1,6 @@
 package com.cht.easygrpc.constant;
 
+import com.cht.easygrpc.loadbalance.EasyGrpcSubchannel;
 import io.grpc.CallOptions;
 import io.grpc.EquivalentAddressGroup;
 
@@ -15,4 +16,7 @@ public interface EasyGrpcOption {
     CallOptions.Key<String> TAG_KEY = CallOptions.Key.createWithDefault("tagKey", null);
     CallOptions.Key<String> IFACE_METHOD_KEY = CallOptions.Key.createWithDefault("ifaceMethodKey", null);
     CallOptions.Key<Object[]> CALL_PARAMS_KEY = CallOptions.Key.createWithDefault("callParamsKey", null);
+
+    CallOptions.Key<EasyGrpcSubchannel> SELECTED_SUBCHANNEL_KEY = CallOptions.Key.create("selectedSubchannelKey");
+    CallOptions.Key<String> REGION_KEY = CallOptions.Key.create("regionKey");
 }
