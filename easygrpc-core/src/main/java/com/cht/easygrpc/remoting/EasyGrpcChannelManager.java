@@ -4,8 +4,10 @@ import com.cht.easygrpc.EasyGrpcContext;
 import com.cht.easygrpc.concurrent.CustomizeThreadPollExecutor;
 import com.cht.easygrpc.discovery.EasyGrpcNameResolverProvider;
 import com.cht.easygrpc.loadbalance.RandomLoadBalancer;
+import com.cht.easygrpc.loadbalance.RandomLoadBalancerProvider;
 import com.cht.easygrpc.registry.EasyGrpcServiceNode;
 import com.cht.easygrpc.registry.Registry;
+import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
 import io.grpc.*;
 
 import java.util.List;
@@ -28,6 +30,7 @@ public class EasyGrpcChannelManager {
 
     private final ConcurrentHashMap<String/*serviceName*/, EasyGrpcNameResolverProvider> providerConcurrentHashMap =
             new ConcurrentHashMap<>();
+
 
     private static final int MAX_INBOUND_SIZE = 100 * 1024 * 1024;
 
@@ -53,24 +56,24 @@ public class EasyGrpcChannelManager {
         }
     }
 
-    public void initChannel(String serviceName) {
-        checkArgument(serviceName != null, "serviceName is null");
-        ManagedChannel managedChannel = serviceChannelMap.get(serviceName);
+    public void initChannel(EasyGrpcClientConfig clientConfig) {
+        checkArgument(clientConfig.getClientName() != null, "serviceName is null");
+        ManagedChannel managedChannel = serviceChannelMap.get(clientConfig.getClientName());
         if(managedChannel == null){
             synchronized (serviceChannelMap){
-                managedChannel = createChannel(serviceName);
-                serviceChannelMap.put(serviceName, managedChannel);
+                managedChannel = createChannel(clientConfig);
+                serviceChannelMap.put(clientConfig.getClientName(), managedChannel);
             }
         }
     }
 
-    private ManagedChannel createChannel(String serviceName) {
-        NameResolverRegistry.getDefaultRegistry().register(providerConcurrentHashMap.get(serviceName));
+    private ManagedChannel createChannel(EasyGrpcClientConfig clientConfig) {
+        NameResolverRegistry.getDefaultRegistry().register(providerConcurrentHashMap.get(clientConfig.getClientName()));
         //LoadBalancerRegistry.getDefaultRegistry().register(new EasyGrpcLoadBalanceProvider(serviceName));
-        LoadBalancerRegistry.getDefaultRegistry().register(new RandomLoadBalancer.Provider());
-        ManagedChannel channel = ManagedChannelBuilder.forTarget(serviceName)
+        //LoadBalancerRegistry.getDefaultRegistry().register(new RandomLoadBalancer.Provider());
+        ManagedChannel channel = ManagedChannelBuilder.forTarget(clientConfig.getClientName())
                 .executor(threadPoolExecutor)
-                .defaultLoadBalancingPolicy("customize")
+                .defaultLoadBalancingPolicy(clientConfig.getLbStrategy())
                 .usePlaintext()
                 .maxInboundMessageSize(MAX_INBOUND_SIZE)
                 .build();

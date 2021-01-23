@@ -133,7 +133,7 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
 
                     createInstance(clazz);
 
-                    initProviderAndChannel(clientConfig.getClientName(), registry);
+                    initProviderAndChannel(clientConfig, registry);
 
                 } catch (Exception e) {
                     throw new EasyGrpcException("after remoting start failure", e);
@@ -142,9 +142,9 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
         }
     }
 
-    private void initProviderAndChannel(String clientName, Registry registry) {
-        context.getEasyGrpcChannelManager().initProvider(clientName, registry);
-        context.getEasyGrpcChannelManager().initChannel(clientName);
+    private void initProviderAndChannel(EasyGrpcClientConfig clientConfig, Registry registry) {
+        context.getEasyGrpcChannelManager().initProvider(clientConfig.getClientName(), registry);
+        context.getEasyGrpcChannelManager().initChannel(clientConfig);
     }
 
     private void createInstance(List<Class<?>> clazz) {

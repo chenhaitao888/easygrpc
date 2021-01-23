@@ -22,6 +22,8 @@ public class EasyGrpcClientConfig {
 
     private int stubType;
 
+    private String lbStrategy = "random";
+
     private EasyGrpcCircuitBreakerConfig circuitBreakerConfig;
 
     public String getClientName() {
@@ -86,5 +88,13 @@ public class EasyGrpcClientConfig {
 
     public void setCircuitBreakerConfig(EasyGrpcCircuitBreakerConfig circuitBreakerConfig) {
         this.circuitBreakerConfig = circuitBreakerConfig;
+    }
+
+    public String getLbStrategy() {
+        return lbStrategy;
+    }
+
+    public void setLbStrategy(String lbStrategy) {
+        this.lbStrategy = lbStrategy;
     }
 }

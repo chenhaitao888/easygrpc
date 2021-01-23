@@ -19,8 +19,10 @@ public class SubChannelHelper {
         final Attributes newAttributes = attributes.toBuilder()
                 .set(STATE_INFO_KEY, new Ref<>(ConnectivityStateInfo.forNonError(ConnectivityState.IDLE)))
                 .build();
-        final LoadBalancer.Subchannel subchannel = helper.createSubchannel(addressGroup, newAttributes);
-        subchannel.requestConnection();
+        final LoadBalancer.Subchannel subchannel = helper.createSubchannel(LoadBalancer.CreateSubchannelArgs.newBuilder()
+                .setAddresses(addressGroup)
+                .setAttributes(newAttributes)
+                .build());
         return subchannel;
     }
 
@@ -33,7 +35,7 @@ public class SubChannelHelper {
     private static <T> void setAttributeValue(LoadBalancer.Subchannel subchannel, Attributes.Key<Ref<T>> key, Attributes newAttributes) {
         final Ref<T> newValueRef = newAttributes.get(key);
         if (newValueRef != null) {
-            setAttributeValue(subchannel, key, (Attributes) newValueRef.value);
+            setAttributeValue(subchannel, key, newValueRef.value);
         }
     }
 

@@ -45,6 +45,7 @@ public abstract class AbstractEasyGrpcLoadBalance extends LoadBalancer {
             if (existingSubchannel != null) {
                 subchannel = existingSubchannel;
                 SubChannelHelper.updateAttributes(subchannel, originalAddressGroup.getAttributes());
+                subchannel.updateAddresses(Collections.singletonList(originalAddressGroup));
             } else {
                 subchannel = SubChannelHelper.createSubChannel(helper, strippedAddressGroup, originalAddressGroup.getAttributes());
                 subchannels.put(strippedAddressGroup, subchannel);

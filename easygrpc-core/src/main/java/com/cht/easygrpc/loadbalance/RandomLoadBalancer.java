@@ -39,21 +39,18 @@ public class RandomLoadBalancer extends LoadBalancer {
                     .setAttributes(subchannelAttrs.build())
                     .build());
             subchannels.put(server, subchannel);
-            subchannel.start(new SubchannelStateListener() {
-                @Override
-                public void onSubchannelState(ConnectivityStateInfo state) {
-                    for(Map.Entry<EquivalentAddressGroup, Subchannel> entry : subchannels.entrySet()){
-                        if(subchannel == entry.getValue()){
-                            if (state.getState() == SHUTDOWN) {
-                                subchannels.remove(entry.getKey());
-                            }
-                            if (state.getState() == IDLE) {
-                                subchannel.requestConnection();
-                            }
-                            subchannel.getAttributes().get(STATE_INFO).value = state;
-                            updateBalancingState();
-                            return;
+            subchannel.start(state -> {
+                for(Map.Entry<EquivalentAddressGroup, Subchannel> entry : subchannels.entrySet()){
+                    if(subchannel == entry.getValue()){
+                        if (state.getState() == SHUTDOWN) {
+                            subchannels.remove(entry.getKey());
                         }
+                        if (state.getState() == IDLE) {
+                            subchannel.requestConnection();
+                        }
+                        subchannel.getAttributes().get(STATE_INFO).value = state;
+                        updateBalancingState();
+                        return;
                     }
                 }
             });
@@ -122,7 +119,7 @@ public class RandomLoadBalancer extends LoadBalancer {
 
         @Override
         public String getPolicyName() {
-            return "customize";
+            return "random";
         }
 
         @Override
