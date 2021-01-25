@@ -2,6 +2,7 @@ package com.cht.easygrpc.discovery;
 
 import com.cht.easygrpc.constant.EasyGrpcAttr;
 import com.cht.easygrpc.helper.CollectionHelper;
+import com.cht.easygrpc.helper.SubChannelHelper;
 import com.google.common.collect.Lists;
 import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;
@@ -47,11 +48,10 @@ public class EasyGrpcNameResolverProvider extends NameResolverProvider {
         for (Map<String, Object> address : initAddress) {
             SocketAddress socketAddress = new InetSocketAddress((String) address.get("host"), (int) address.get("port"));
 
-            Attributes.Builder attributesBuilder = Attributes.newBuilder();
-            attributesBuilder.set(EasyGrpcAttr.SERVER_WEIGHT, (int) address.getOrDefault("weight", 0));
-            attributesBuilder.set(EasyGrpcAttr.SERVER_TAG, (String) address.get("tag"));
-
-            EquivalentAddressGroup server = new EquivalentAddressGroup(socketAddress, attributesBuilder.build());
+            Attributes attributes = SubChannelHelper.createAttributes((int) address.getOrDefault("weight", 0), null == address.get("tag") ?
+                    "" : (String) address.get("tag"), null == address.get("region") ? "" : (String) address.get(
+                    "region"));
+            EquivalentAddressGroup server = new EquivalentAddressGroup(socketAddress, attributes);
             servers.add(server);
         }
         return servers;

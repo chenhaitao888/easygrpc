@@ -2,6 +2,7 @@ package com.cht.easygrpc.helper;
 
 import io.grpc.*;
 
+import static com.cht.easygrpc.constant.EasyGrpcAttr.*;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -9,9 +10,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class SubChannelHelper {
     private static final Attributes.Key<Ref<ConnectivityStateInfo>> STATE_INFO_KEY = Attributes.Key.create("state-info");
-    private static final Attributes.Key<Ref<Integer>> WEIGHT_KEY = Attributes.Key.create("weight");
-    private static final Attributes.Key<Ref<String>> TAG_KEY = Attributes.Key.create("tag");
-    private static final Attributes.Key<Ref<String>> REGION_KEY = Attributes.Key.create("region");
+    private static final Attributes.Key<Ref<Integer>> WEIGHT_KEY = Attributes.Key.create(WEIGHT_META_KEY);
+    private static final Attributes.Key<Ref<String>> TAG_KEY = Attributes.Key.create(TAG_META_KEY);
+    private static final Attributes.Key<Ref<String>> REGION_KEY = Attributes.Key.create(REGION_META_KEY);
 
     public static LoadBalancer.Subchannel createSubChannel(LoadBalancer.Helper helper,
                                                     EquivalentAddressGroup addressGroup,
@@ -70,6 +71,14 @@ public class SubChannelHelper {
         if (targetRef != null) {
             targetRef.value = newValue;
         }
+    }
+
+    public static Attributes createAttributes(int weight, String tag, String region) {
+        return Attributes.newBuilder()
+                .set(WEIGHT_KEY, new Ref<>(weight))
+                .set(TAG_KEY, new Ref<>(tag))
+                .set(REGION_KEY, new Ref<>(region))
+                .build();
     }
 
     static final class Ref<T> {

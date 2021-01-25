@@ -18,4 +18,8 @@ public interface EasyGrpcAttr {
     Attributes.Key<Integer> SERVER_WEIGHT = Attributes.Key.create("serverWeight");
     Attributes.Key<String> SERVER_TAG = Attributes.Key.create("serverTag");
 
+    String TAG_META_KEY = "tag";
+    String REGION_META_KEY = "region";
+    String WEIGHT_META_KEY = "weight";
+    String STATUS_META_KEY = "status";
 }
