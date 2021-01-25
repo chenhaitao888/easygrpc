@@ -18,4 +18,6 @@ public interface Registry {
     ChildData getServerData();
 
     ChildData getServiceData(String serviceName);
+
+    void unRegister() throws Exception;
 }

@@ -46,7 +46,7 @@ public class EasyGrpcServer extends AbstractRemotingServer{
     private void nettyServerStart(EasyGrpcContext context) throws IOException, InterruptedException {
 
         EasyGrpcProcessor easyGrpcProcessor = new EasyGrpcProcessor();
-        Server server = NettyServerBuilder
+        this.server = NettyServerBuilder
                 .forPort(context.getServerConfig().getPort())
                 .addService(easyGrpcProcessor)
                 .executor(threadPoolExecutor)
@@ -59,18 +59,14 @@ public class EasyGrpcServer extends AbstractRemotingServer{
 
     @Override
     protected void serverShutdown(Server server) throws RemotingException {
-        Runtime.getRuntime().addShutdownHook(new Thread(){
-
-            @Override
-            public void run() {
-                if (server != null) {
-                    try {
-                        server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
-                    } catch (InterruptedException e) {
-                        LOGGER.error("shut down error ", e);
-                    }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (server != null) {
+                try {
+                    server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    LOGGER.error("shut down error ", e);
                 }
             }
-        });
+        }));
     }
 }

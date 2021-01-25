@@ -10,5 +10,5 @@ import io.grpc.Server;
 public interface EasyGrpcRemotingServer {
     void start() throws RemotingException;
 
-    void shutdown(Server server) throws RemotingException;
+    void shutdown() throws RemotingException;
 }

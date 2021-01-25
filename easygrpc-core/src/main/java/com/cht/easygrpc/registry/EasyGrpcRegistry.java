@@ -69,4 +69,11 @@ public class EasyGrpcRegistry extends ZookeeperRegistry {
     }
 
 
+    @Override
+    public void unRegister() throws Exception {
+        if(checkExists(suriveNodePath)){
+            getClient().delete().forPath(suriveNodePath);
+            LOGGER.info("delete path {}", suriveNodePath);
+        }
+    }
 }

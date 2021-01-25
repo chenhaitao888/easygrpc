@@ -6,6 +6,7 @@ import com.cht.easygrpc.ec.EventCenter;
 import com.cht.easygrpc.ec.EventInfo;
 import com.cht.easygrpc.exception.EasyGrpcException;
 import com.cht.easygrpc.exception.RemotingException;
+import com.cht.easygrpc.exception.StartupException;
 import com.cht.easygrpc.helper.CollectionHelper;
 import com.cht.easygrpc.helper.GenericsHelper;
 import com.cht.easygrpc.helper.JsonClientHelper;
@@ -14,10 +15,7 @@ import com.cht.easygrpc.logger.Logger;
 import com.cht.easygrpc.logger.LoggerFactory;
 import com.cht.easygrpc.registry.EasyGrpcRegistry;
 import com.cht.easygrpc.registry.Registry;
-import com.cht.easygrpc.remoting.AbstractRemoting;
-import com.cht.easygrpc.remoting.EasyGrpcChannelManager;
-import com.cht.easygrpc.remoting.EasyGrpcCircuitBreakerManager;
-import com.cht.easygrpc.remoting.EasyGrpcServer;
+import com.cht.easygrpc.remoting.*;
 import com.cht.easygrpc.remoting.conf.ConfigContext;
 import com.cht.easygrpc.remoting.conf.EasyGrpcClientConfig;
 import com.cht.easygrpc.remoting.iface.IServiceInitializer;
@@ -56,6 +54,8 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
     protected EventCenter eventCenter = EasyGrpcInjector.getInstance(EventCenter.class);
 
     protected IServiceInitializer iServiceInitializer;
+
+    protected EasyGrpcRemotingServer remotingServer;
 
     public AbstractEasyGrpcStarter() {
         this.context = getContext();
@@ -97,6 +97,8 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
                 afterRemotingStart();
 
                 publishEvent();
+
+                addShutdownHook();
 
                 AliveKeeping.start();
 
@@ -160,9 +162,8 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
     }
 
     private void remotingStart() {
-        EasyGrpcServer grpcServer = new EasyGrpcServer(context, iServiceInitializer);
         try {
-            grpcServer.start();
+            remotingServer.start();
         } catch (RemotingException e) {
             throw new EasyGrpcException("start remote server failure", e);
         }
@@ -182,6 +183,7 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
             context.setProxyFactory(proxyFactory);
             context.setEasyGrpcChannelManager(channelManager);
             context.setCircuitBreakerManager(new EasyGrpcCircuitBreakerManager());
+            remotingServer = new EasyGrpcServer(context, iServiceInitializer);
         } catch (Exception e) {
             throw new EasyGrpcException("before remoting start failure", e);
         }
@@ -210,5 +212,18 @@ public abstract class AbstractEasyGrpcStarter<Context extends EasyGrpcContext> {
         }
         LoggerFactory.setLoggerAdapter(grpcConfig.getCommonConfig());
         LOGGER = LoggerFactory.getLogger(AbstractEasyGrpcStarter.class.getName());
+    }
+
+    private void addShutdownHook() throws RemotingException {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                registry.unRegister();
+
+            } catch (Exception e) {
+                LOGGER.error("unregister failure");
+                throw new StartupException("unregisterServer server on zookeeper error!", e);
+            }
+        }));
+        remotingServer.shutdown();
     }
 }

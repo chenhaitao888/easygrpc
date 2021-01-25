@@ -43,6 +43,8 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
     protected ExecutorService executorService = Executors.newSingleThreadExecutor(new NamedThreadFactory("easygprc" +
             "-server-thread", false));
 
+    protected Server server;
+
     protected AbstractRemotingServer(EasyGrpcContext context, IServiceInitializer initializer) {
 
         super(context);
@@ -102,7 +104,7 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
     }
 
     @Override
-    public void shutdown(Server server) throws RemotingException {
+    public void shutdown() throws RemotingException {
         serverShutdown(server);
     }
 
