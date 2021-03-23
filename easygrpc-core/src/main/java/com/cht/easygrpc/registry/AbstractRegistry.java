@@ -19,6 +19,8 @@ public abstract class AbstractRegistry implements Registry{
 
     protected String ROOT_PATH = "/easy-grpc";
 
+    protected WarmUp warmUp;
+
     public AbstractRegistry(EasyGrpcContext context) {
         this.context = context;
     }
